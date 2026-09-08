@@ -1,0 +1,1 @@
+ALTER TABLE roster_entries ADD COLUMN is_reserve INTEGER NOT NULL DEFAULT 0;

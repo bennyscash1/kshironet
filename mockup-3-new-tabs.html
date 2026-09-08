@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מוקאפ — 3 לשוניות חדשות · כשירונט 228</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Design tokens — copied verbatim from app/globals.css
+   ============================================================ */
+:root{
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.18 0.02 262);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 262);
+  --primary: oklch(0.53 0.22 262);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.95 0.03 262);
+  --secondary-foreground: oklch(0.3 0.1 262);
+  --muted: oklch(0.96 0.01 262);
+  --muted-foreground: oklch(0.5 0.03 262);
+  --accent: oklch(0.93 0.05 262);
+  --accent-foreground: oklch(0.3 0.12 262);
+  --destructive: oklch(0.62 0.24 15);
+  --border: oklch(0.9 0.015 262);
+  --input: oklch(0.9 0.015 262);
+  --ring: oklch(0.6 0.19 262);
+  --chart-1: oklch(0.55 0.22 262);
+  --chart-2: oklch(0.6 0.2 295);
+  --chart-3: oklch(0.7 0.13 180);
+  --chart-4: oklch(0.76 0.16 70);
+  --chart-5: oklch(0.62 0.21 15);
+  --radius: 0.75rem;
+  --ok: oklch(0.62 0.16 155);
+  --warn: oklch(0.76 0.16 70);
+  --bad: oklch(0.62 0.24 15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Heebo',system-ui,sans-serif;
+  background:var(--background); color:var(--foreground);
+  -webkit-font-smoothing:antialiased; line-height:1.5;
+}
+.wrap{max-width:1280px;margin:0 auto;padding:1.5rem 1rem 4rem;}
+
+/* ---------- Header / nav (mirrors components/layout/main-nav.tsx) ---------- */
+header.appnav{background:var(--card);border-bottom:2px solid oklch(0.53 0.22 262 / .2);position:relative;}
+header.appnav::after{content:"";position:absolute;inset-inline:0;bottom:0;height:3px;
+  background:linear-gradient(to left,var(--primary),var(--chart-2),var(--chart-4));}
+.navrow{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:1rem;padding:.75rem 1rem;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:.5rem;flex-shrink:0;font-weight:800;font-size:1.05rem;}
+.brand .logo{width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--primary),var(--chart-2));display:grid;place-items:center;
+  color:#fff;font-size:.7rem;font-weight:800;}
+.brand span.txt{background:linear-gradient(to left,var(--primary),var(--chart-2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+nav.tabs{display:flex;align-items:center;gap:.25rem;flex:1;flex-wrap:wrap;}
+nav.tabs button{font:inherit;font-size:.875rem;font-weight:500;padding:.5rem .7rem;border:0;border-radius:.6rem;
+  background:transparent;color:inherit;cursor:pointer;transition:background .15s;position:relative;}
+nav.tabs button:hover{background:var(--accent);}
+nav.tabs button.active{background:var(--primary);color:var(--primary-foreground);}
+nav.tabs button.disabled{opacity:.45;cursor:not-allowed;}
+nav.tabs button.isnew::after{content:"חדש";position:absolute;top:-6px;inset-inline-start:-4px;
+  font-size:.55rem;font-weight:800;background:var(--chart-4);color:#3a2400;
+  padding:.05rem .3rem;border-radius:99px;line-height:1.4;}
+.navtools{display:flex;align-items:center;gap:.5rem;}
+.pill{font-size:.75rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:99px;background:var(--card);}
+
+/* ---------- Mockup banner ---------- */
+.mockbar{background:oklch(0.96 0.03 262);border-bottom:1px solid var(--border);}
+.mockbar .inner{max-width:1280px;margin:0 auto;padding:.5rem 1rem;display:flex;gap:.75rem;
+  align-items:center;flex-wrap:wrap;font-size:.8rem;color:var(--muted-foreground);}
+.mockbar strong{color:var(--foreground);}
+.toggle{font:inherit;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid var(--primary);
+  color:var(--primary);background:var(--card);border-radius:99px;padding:.25rem .7rem;}
+.toggle[aria-pressed="true"]{background:var(--primary);color:#fff;}
+
+/* ---------- Generic ---------- */
+h1{font-size:1.5rem;font-weight:800;}
+h2{font-size:1.075rem;font-weight:700;}
+h3{font-size:.95rem;font-weight:700;}
+.sub{color:var(--muted-foreground);font-size:.85rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:0 1px 2px oklch(0 0 0 / .04);}
+.card.pad{padding:1rem;}
+.stack{display:flex;flex-direction:column;gap:1.25rem;}
+.stack-sm{display:flex;flex-direction:column;gap:.5rem;}
+.row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
+.spread{display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;}
+.grid{display:grid;gap:.75rem;}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:900px){.g4,.g3,.g2{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.g4,.g3,.g2{grid-template-columns:1fr;}}
+.btn{font:inherit;font-size:.8rem;font-weight:600;cursor:pointer;border-radius:.6rem;padding:.4rem .8rem;
+  border:1px solid var(--border);background:var(--card);color:inherit;transition:.15s;}
+.btn:hover{background:var(--accent);}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+.btn.primary:hover{filter:brightness(1.08);background:var(--primary);}
+.btn.ghost{border-color:transparent;}
+.btn.xs{font-size:.72rem;padding:.2rem .5rem;}
+.badge{display:inline-flex;align-items:center;gap:.25rem;font-size:.72rem;font-weight:600;
+  padding:.15rem .5rem;border-radius:99px;border:1px solid var(--border);background:var(--muted);
+  white-space:nowrap;}
+.badge.ok{background:oklch(0.62 0.16 155 / .13);border-color:oklch(0.62 0.16 155 / .4);color:oklch(0.4 0.13 155);}
+.badge.warn{background:oklch(0.76 0.16 70 / .16);border-color:oklch(0.76 0.16 70 / .45);color:oklch(0.45 0.13 70);}
+.badge.bad{background:oklch(0.62 0.24 15 / .12);border-color:oklch(0.62 0.24 15 / .4);color:oklch(0.45 0.2 15);}
+.badge.info{background:var(--accent);border-color:oklch(0.53 0.22 262 / .3);color:var(--accent-foreground);}
+table{width:100%;border-collapse:collapse;font-size:.85rem;}
+th{text-align:right;font-weight:700;font-size:.78rem;color:var(--muted-foreground);
+  padding:.55rem .6rem;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:.55rem .6rem;border-bottom:1px solid oklch(0.9 0.015 262 / .6);vertical-align:middle;}
+tbody tr:hover{background:oklch(0.96 0.01 262 / .7);}
+tbody tr:last-child td{border-bottom:0;}
+.num{font-variant-numeric:tabular-nums;font-weight:600;}
+.bar{height:8px;border-radius:99px;background:var(--muted);overflow:hidden;min-width:70px;}
+.bar>i{display:block;height:100%;border-radius:99px;}
+.screen{display:none;}
+.screen.active{display:block;}
+.section-title{display:flex;align-items:center;gap:.5rem;}
+.section-title .dot{width:6px;height:18px;border-radius:99px;background:var(--primary);}
+
+/* ---------- Dev annotations ---------- */
+.note{display:none;font-size:.75rem;line-height:1.55;border-inline-start:3px solid var(--chart-4);
+  background:oklch(0.76 0.16 70 / .09);border-radius:.4rem;padding:.5rem .65rem;color:oklch(0.35 0.08 70);}
+.note b{color:oklch(0.28 0.1 70);}
+.note code{font-family:ui-monospace,monospace;background:oklch(1 0 0 / .7);padding:0 .25rem;border-radius:.25rem;}
+body.notes .note{display:block;}
+.note.inline{display:none;}
+body.notes .note.inline{display:inline-block;margin-inline-start:.4rem;vertical-align:middle;}
+
+/* ---------- KPI — ריבוע צבוע במלואו, טקסט ממורכז ---------- */
+.kpi{--k:var(--primary);background:var(--k);border:0;border-radius:var(--radius);
+  padding:.95rem .85rem;text-align:center;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:.18rem;color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.10);}
+.kpi .lbl{font-size:.78rem;font-weight:700;color:rgba(255,255,255,.92);line-height:1.25;}
+.kpi .val{font-size:2rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1;color:#fff;}
+.kpi .val span{opacity:.7;}
+.kpi .delta{font-size:.72rem;font-weight:600;color:rgba(255,255,255,.85) !important;line-height:1.3;}
+.kpi .delta.sub{color:rgba(255,255,255,.85) !important;}
+
+/* ---------- Battalion chips ---------- */
+
+
+
+
+
+/* ---------- גרירה ושחרור במצב עריכה ---------- */
+.rolecard.editable .slot[draggable="true"]{cursor:grab;}
+.rolecard.editable .slot[draggable="true"]:active{cursor:grabbing;}
+.slot.dragging,.bankcard.dragging{opacity:.4;}
+/* בזמן גרירה — כל היעדים האפשריים מסומנים */
+body.dnd .rolecard.editable{outline:1.5px dashed oklch(0.53 0.22 262 / .45);outline-offset:2px;}
+body.dnd #bankPanel{outline:1.5px dashed oklch(0.53 0.22 262 / .45);outline-offset:2px;}
+.rolecard.dropok{position:relative;outline:3px solid var(--primary) !important;outline-offset:1px;
+  background:var(--accent) !important;}
+.rolecard.dropok::after{content:attr(data-droplabel);position:absolute;top:-10px;inset-inline-start:50%;
+  transform:translateX(50%);background:var(--primary);color:#fff;font-size:.6rem;font-weight:800;
+  padding:.08rem .45rem;border-radius:99px;white-space:nowrap;z-index:6;pointer-events:none;}
+#bankPanel.dropok{outline:3px solid #c9791c !important;background:#fffdf6;}
+.dndhint{font-size:.7rem;font-weight:700;color:var(--primary);background:#fff;border-radius:99px;
+  padding:.1rem .45rem;}
+.bankcard[draggable="true"]{cursor:grab;}
+.bankcard[draggable="true"]:active{cursor:grabbing;}
+
+/* ---------- שורות רישום חיילים + טופס "הוספת חייל" ---------- */
+.slothdr{display:grid;grid-template-columns:26px 1fr 176px 86px 26px;gap:.45rem;
+  font-size:.67rem;font-weight:700;color:var(--muted-foreground);padding:.2rem 0 .3rem;
+  border-bottom:1px dashed var(--border);margin-bottom:.15rem;}
+.srow{display:grid;grid-template-columns:26px 1fr 176px 86px 26px;gap:.45rem;align-items:center;
+  padding:.28rem 0;border-bottom:1px dashed var(--border);}
+.srow .sn{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  font-size:.67rem;font-weight:800;background:var(--muted);color:#5b6570;}
+.srow.done .sn{background:#0f9d6e;color:#fff;}
+.srow.resv .sn{background:#c9791c;color:#fff;}
+.srow input{border:1px solid var(--input);border-radius:.45rem;padding:.32rem .5rem;font:inherit;
+  font-size:.8rem;background:var(--card);color:inherit;width:100%;}
+.srow.done input{border-color:#8fd9b6;background:#f4fbf8;font-weight:600;}
+.srow input:focus{outline:2px solid var(--ring);outline-offset:-1px;}
+.srow .exp{font:inherit;font-size:.66rem;font-weight:700;border:1px solid var(--border);
+  border-radius:.4rem;background:var(--card);cursor:pointer;padding:.2rem .35rem;color:var(--muted-foreground);}
+.srow .exp:hover{border-color:var(--primary);color:var(--primary);}
+.srow .del{border:0;background:transparent;cursor:pointer;color:#9aa1a9;font-size:.9rem;font-family:inherit;}
+.srow .del:hover{color:var(--fs-bad-ink);}
+
+.sform{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;background:#f8fafc;
+  border:1px solid var(--border);border-radius:.5rem;padding:.7rem;margin:.15rem 0 .5rem;}
+@media(max-width:700px){.sform{grid-template-columns:1fr;}}
+.sform .full{grid-column:1/-1;}
+.ff{display:flex;flex-direction:column;gap:.18rem;}
+.ff>span{font-size:.7rem;font-weight:700;}
+.ff .fromfs{font-style:normal;font-size:.6rem;font-weight:700;color:var(--primary);
+  background:var(--accent);border-radius:99px;padding:0 .3rem;margin-inline-start:.25rem;}
+.ff input,.ff select,.ff textarea{font:inherit;font-size:.8rem;border:1px solid var(--input);
+  border-radius:.45rem;padding:.32rem .5rem;background:#fff;color:inherit;width:100%;resize:vertical;}
+.ff input.auto{background:#f4f8ff;border-color:#c3d4f7;}
+.ff select:disabled{background:var(--muted);color:var(--muted-foreground);}
+.cbx{display:flex;align-items:center;gap:.4rem;font-size:.76rem;font-weight:600;
+  border:1px solid var(--border);border-radius:.45rem;padding:.35rem .5rem;background:#fff;}
+.cbx.warn{background:#fdf8ea;border-color:#e8d59a;color:#7a5a12;}
+.cbx input{margin:0;}
+.resvbox{border:1px dashed #e0c68a;background:#fffdf6;border-radius:.5rem;padding:.5rem .6rem;
+  margin-top:.6rem;}
+
+/* ---------- עורך מפתח החישוב (לשונית פערים) ---------- */
+.keypanel{background:#fff;border:2px solid var(--primary);border-radius:.7rem;
+  padding:.85rem;margin-top:.7rem;box-shadow:0 6px 20px rgba(61,92,201,.14);}
+.keypanel .khead{display:flex;align-items:flex-start;justify-content:space-between;gap:.6rem;
+  padding-bottom:.55rem;margin-bottom:.55rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.keypanel .khead h3{font-size:.95rem;}
+.keypanel .fmeta{font-size:.7rem;color:var(--muted-foreground);font-weight:600;margin-top:.15rem;}
+.ksrc{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem;}
+.ksrcn{background:rgba(0,0,0,.12);border-radius:99px;padding:0 .35rem;margin-inline-start:.3rem;
+  font-variant-numeric:tabular-nums;}
+.klbl{font-size:.75rem;font-weight:700;color:var(--muted-foreground);}
+.ktable{border:1px solid var(--border);border-radius:.5rem;padding:.5rem;}
+.krow{display:grid;grid-template-columns:74px 26px 1fr 106px 62px 26px;gap:.4rem;align-items:center;
+  padding:.22rem 0;}
+.krow.khdr{font-size:.68rem;font-weight:700;color:var(--muted-foreground);
+  border-bottom:1px dashed var(--border);padding-bottom:.3rem;margin-bottom:.2rem;}
+.krow input,.krow select{font:inherit;font-size:.8rem;border:1px solid var(--input);border-radius:.4rem;
+  padding:.25rem .4rem;background:var(--card);color:inherit;width:100%;}
+.krow .kmul{font-size:.72rem;color:var(--muted-foreground);font-weight:600;}
+.krow .ksum{font-size:.82rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--primary);}
+.krow .del{border:0;background:transparent;cursor:pointer;color:#9aa1a9;font-size:.85rem;font-family:inherit;}
+.krow .del:hover{color:var(--fs-bad-ink);}
+.ktotals{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;margin-top:.65rem;padding-top:.6rem;
+  border-top:1px solid var(--border);}
+.ktotals .kt{display:flex;flex-direction:column;line-height:1.15;}
+.ktotals .kt small{font-size:.63rem;color:var(--muted-foreground);font-weight:600;}
+.ktotals .kt b{font-size:1.2rem;font-variant-numeric:tabular-nums;}
+.ktotals .kt.bad b{color:var(--fs-bad-ink);}
+.ktotals .kt.good b{color:var(--fs-ok-ink);}
+.ktotals .kop{font-size:1.05rem;font-weight:800;color:var(--muted-foreground);}
+.gw.sel{outline:2px solid var(--primary);outline-offset:1px;}
+.keypanel.locked{border-color:#9aa1a9;box-shadow:0 6px 20px rgba(0,0,0,.08);}
+.lockbar{display:block;font-size:.75rem;line-height:1.55;background:var(--muted);
+  border:1px solid var(--border);border-radius:.5rem;padding:.5rem .6rem;margin-bottom:.6rem;}
+.krow.ro{background:var(--muted);border-radius:.4rem;}
+.krow .kq{font-size:.82rem;font-weight:800;font-variant-numeric:tabular-nums;text-align:center;}
+.krow .kunit{font-size:.8rem;font-weight:600;}
+.krow .klk{font-size:.7rem;opacity:.5;text-align:center;}
+
+/* ============================================================
+   שניים לפנים — בורר מחלקות, סרגל צד, מצב עריכה
+   ============================================================ */
+.fs-pills{display:flex;gap:.4rem;flex-wrap:wrap;}
+.fs-pill{font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;border:1.5px solid var(--border);
+  background:var(--card);border-radius:.6rem;padding:.42rem .85rem;display:flex;align-items:center;
+  gap:.4rem;color:inherit;transition:.14s;}
+.fs-pill:hover{border-color:var(--primary);}
+.fs-pill.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.fs-pill .pc{font-size:.68rem;font-weight:700;opacity:.72;font-variant-numeric:tabular-nums;}
+
+.fslayout{display:grid;grid-template-columns:1fr 274px;gap:1rem;align-items:start;}
+@media(max-width:1000px){.fslayout{grid-template-columns:1fr;}}
+.sidehead{width:100%;font:inherit;background:transparent;border:0;cursor:pointer;padding:.6rem .75rem;
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+  border-bottom:1px solid var(--border);color:inherit;}
+.sidehead:hover{background:var(--muted);}
+.sidehead .chev{font-size:.7rem;color:var(--muted-foreground);}
+.sidebody{padding:.7rem .75rem;}
+.sidebody.collapsed{display:none;}
+.capbar{height:10px;border-radius:99px;background:var(--muted);overflow:hidden;position:relative;}
+.capbar>i{display:block;height:100%;border-radius:99px;}
+.capbar .mark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--foreground);opacity:.55;}
+.capwrap{margin-bottom:.65rem;}
+.bankfilters{display:grid;grid-template-columns:1fr 1fr;gap:.3rem;}
+.bfilter{font-size:.7rem;font-weight:600;border:1px solid var(--border);border-radius:.4rem;
+  padding:.22rem .38rem;display:flex;align-items:center;gap:.28rem;cursor:pointer;}
+.bfilter.on{border-color:var(--primary);background:var(--accent);color:var(--accent-foreground);}
+.bfilter input{margin:0;}
+.banklist{display:flex;flex-direction:column;gap:.4rem;max-height:340px;overflow-y:auto;}
+.bankcard{border:1.5px dashed var(--fs-empty-line);border-radius:.5rem;padding:.42rem .5rem;
+  background:var(--card);border-inline-end:4px solid #b05423;display:flex;flex-direction:column;gap:.12rem;}
+.bankcard .bname{font-size:.8rem;font-weight:800;}
+.bankcard .brole{font-size:.68rem;font-weight:600;color:var(--muted-foreground);}
+.bankcard .bdept{font-size:.63rem;color:#9aa1a9;}
+.bankcard.grab{cursor:grab;}
+.bankcard.picked{border-style:solid;border-color:var(--primary);
+  box-shadow:0 0 0 2px oklch(0.53 0.22 262 / .25);}
+
+.rolecard.editable .slot{cursor:pointer;}
+.rolecard.editable:hover{box-shadow:0 3px 10px rgba(0,0,0,.10);}
+.rolecard.editable.st-empty .slot{border-style:dashed;border-color:var(--primary);}
+.rolecard.picked{box-shadow:0 0 0 3px oklch(0.53 0.22 262 / .38);}
+.editbar{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;
+  background:var(--accent);border:1.5px solid oklch(0.53 0.22 262 / .35);border-radius:.6rem;
+  padding:.6rem .75rem;font-size:.83rem;margin-bottom:.4rem;}
+
+/* ============================================================
+   פערים — ווידג'ט להסמכה, צבע לפי משפחת נושא
+   ============================================================ */
+.fam-head{display:flex;align-items:center;gap:.55rem;margin:.2rem 0 .1rem;}
+.fam-head .swatch{width:8px;height:20px;border-radius:99px;}
+.fam-head h2{font-size:1rem;}
+.fam-head .cnt{font-size:.75rem;color:var(--muted-foreground);font-weight:600;}
+
+.gapgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:.7rem;}
+.gw{border:1.5px solid var(--gc-line);background:var(--gc-bg);border-radius:.85rem;padding:.65rem .7rem;
+  display:flex;flex-direction:column;gap:.45rem;position:relative;transition:transform .12s,box-shadow .12s;}
+.gw:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.09);cursor:pointer;}
+.gw .gwtop{display:flex;align-items:flex-start;justify-content:space-between;gap:.4rem;}
+.gw .gwname{font-weight:800;font-size:.95rem;color:var(--gc-ink);line-height:1.2;}
+.gw .gwsrc{font-size:.67rem;font-weight:600;color:var(--gc-ink);opacity:.7;margin-top:.1rem;}
+.gw .gwgap{flex-shrink:0;font-size:.7rem;font-weight:800;padding:.15rem .5rem;border-radius:99px;
+  background:var(--gc-ink);color:#fff;white-space:nowrap;}
+.gw.balanced .gwgap{background:var(--fs-ok-line);color:#0a4d38;}
+.gw.surplus .gwgap{background:#0f7a5c;color:#fff;}
+.gw .sq{display:flex;flex-wrap:wrap;gap:2px;min-height:12px;}
+.gw .sq b{width:9px;height:9px;border-radius:2px;display:block;}
+.gw .sq b.on{background:var(--gc-ink);}
+.gw .sq b.off{background:transparent;border:1px solid var(--gc-line);}
+.gw .sq b.extra{background:#0f7a5c;}
+.gw .gwnum{display:flex;align-items:baseline;gap:.3rem;font-variant-numeric:tabular-nums;}
+.gw .gwnum .big{font-size:1.45rem;font-weight:800;color:var(--gc-ink);line-height:1;}
+.gw .gwnum .of{font-size:.78rem;color:var(--gc-ink);opacity:.65;font-weight:600;}
+.gw .gwbd{font-size:.68rem;line-height:1.45;color:#4b5563;background:rgba(255,255,255,.65);
+  border-radius:.4rem;padding:.3rem .4rem;}
+.gw .gwact{display:flex;gap:.3rem;}
+.gw .gwact .btn{font-size:.7rem;padding:.18rem .5rem;}
+.gw.crit::after{content:"";position:absolute;inset-block:0;inset-inline-end:0;width:4px;
+  border-start-end-radius:.85rem;border-end-end-radius:.85rem;background:var(--gc-ink);}
+
+.famchips{display:flex;gap:.35rem;flex-wrap:wrap;}
+.fchip{font:inherit;font-size:.76rem;font-weight:700;cursor:pointer;border-radius:99px;padding:.28rem .7rem;
+  border:1.5px solid var(--border);background:var(--card);color:inherit;display:flex;align-items:center;gap:.35rem;}
+.fchip .sw{width:9px;height:9px;border-radius:2px;}
+.fchip.active{background:var(--muted);}
+.fchip[aria-pressed="false"]{opacity:.4;}
+
+/* ============================================================
+   תצוגת שבוע — מבוססת components/calendar/month-view.tsx
+   (grid-cols-8: תא שבוע + 7 ימים, בָּרים בנתיבים, chips בתאים)
+   ============================================================ */
+.wk-bar-top{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;
+  border:1px solid var(--border);border-radius:.6rem;padding:.5rem .6rem;}
+.wk-navs{display:flex;align-items:center;gap:.35rem;}
+.wk-navs input[type=date]{font:inherit;font-size:.78rem;height:1.85rem;border:1px solid var(--input);
+  border-radius:.45rem;padding:0 .4rem;background:var(--card);color:inherit;}
+.wk-nav{flex-shrink:0;width:30px;height:30px;border:1px solid var(--border);border-radius:.5rem;
+  background:var(--card);cursor:pointer;font-size:1.15rem;font-weight:700;color:var(--muted-foreground);
+  display:flex;align-items:center;justify-content:center;transition:.15s;font-family:inherit;
+  line-height:1;padding:0;}
+.wk-nav:hover{background:var(--accent);color:var(--primary);border-color:var(--primary);}
+.wk-cal{flex:1;min-width:0;}
+.wk-grid{display:grid;grid-template-columns:46px repeat(7,minmax(0,1fr));gap:4px;}
+.wk-hd{text-align:center;font-size:.72rem;font-weight:700;color:var(--muted-foreground);padding-bottom:.15rem;}
+.wk-hd.wnum{color:var(--primary);}
+.wk-wknum{display:flex;align-items:center;justify-content:center;border-radius:.5rem;
+  background:oklch(0.53 0.22 262 / .10);color:var(--primary);font-weight:800;font-size:.95rem;}
+.wk-daysbox{grid-column:span 7;position:relative;}
+.wk-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
+/* --- שורה 1: תאי הלוח, מכילים רק את מספר היום ואת בָּרי ההסמכות --- */
+.wk-cell{border:1px solid var(--border);border-radius:.5rem;padding:.2rem;
+  display:flex;flex-direction:column;}
+.wk-cell.we{background:oklch(0.96 0.01 262 / .55);}
+.wk-cell.today{border:2px solid #1f2937;}
+/* גובה קבוע ומדויק — כדי ש-.wk-lanes ימוקם בול מתחתיו */
+.wk-dnum{height:20px;line-height:20px;font-size:.75rem;font-weight:600;text-align:end;padding:0 .2rem;
+  flex-shrink:0;}
+.wk-cell.today .wk-dnum{font-weight:800;}
+
+/* --- שורה 2 נפרדת: השמות. לא על חשבון גובה הלוח --- */
+.wk-band{grid-column:span 7;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
+.wk-bandlbl{display:flex;align-items:center;justify-content:center;text-align:center;
+  font-size:.62rem;font-weight:800;color:var(--muted-foreground);background:var(--muted);
+  border-radius:.5rem;padding:.2rem;line-height:1.3;}
+.wk-namecell{border:1px solid var(--border);border-radius:.5rem;padding:.28rem;background:#fbfbfc;
+  display:flex;flex-direction:column;gap:6px;min-height:44px;}
+.wk-namecell.we{background:oklch(0.96 0.01 262 / .5);}
+.wk-namecell.today{border:2px solid #1f2937;}
+.wk-namecell .none{font-size:.62rem;color:#b3b9c0;text-align:center;margin:auto;}
+.wk-sep{grid-column:span 8;height:1px;background:var(--border);margin:.35rem 0 .15rem;}
+
+/* קבוצת יציאה להסמכה שמתחילה ביום הזה */
+.wk-grp{display:flex;flex-direction:column;gap:2px;}
+.wk-grp .gh{font-size:.6rem;font-weight:800;line-height:1.4;padding:0 .15rem;
+  display:flex;align-items:center;justify-content:space-between;gap:.2rem;}
+.wk-grp .gh .gcount{font-variant-numeric:tabular-nums;opacity:.75;}
+.nmbox{font-size:.63rem;font-weight:700;line-height:1.55;border-radius:.28rem;padding:.05rem .3rem;
+  color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nmbox.empty{background:transparent !important;border:1.5px dashed currentColor;font-weight:600;
+  opacity:.8;}
+
+/* ---------- שורת משימות פתוחות ---------- */
+.tasklist{display:flex;flex-direction:column;}
+.taskrow{display:flex;align-items:center;gap:.6rem;padding:.5rem .2rem;
+  border-bottom:1px dashed var(--border);}
+.taskrow:last-child{border-bottom:0;}
+.taskrow .tico{width:26px;height:26px;border-radius:.45rem;display:grid;place-items:center;
+  font-size:.78rem;flex-shrink:0;font-weight:800;}
+.taskrow .ttxt{flex:1;font-size:.83rem;line-height:1.35;}
+.taskrow .ttxt b{font-weight:800;}
+.taskrow .tsub{font-size:.68rem;color:var(--muted-foreground);font-weight:600;}
+.taskrow .tcta{flex-shrink:0;}
+.tk-doc{background:#fdf0d8;color:#8a5a10;}
+.tk-adm{background:#ede4fb;color:#5b21b6;}
+.tk-slot{background:var(--fs-bad-pill);color:var(--fs-bad-ink);}
+.tk-prq{background:#dbeafe;color:#1d4ed8;}
+.wk-lanes{position:absolute;inset-inline:0;top:20px;display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;pointer-events:none;}
+.wk-bar{border-radius:.3rem;color:#fff;font-size:.68rem;font-weight:700;
+  display:flex;align-items:center;justify-content:flex-end;gap:.25rem;padding:0 .3rem;
+  overflow:hidden;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.15);}
+.wk-bar{height:19px;margin-bottom:3px;pointer-events:auto;cursor:pointer;}
+.wk-bar.oneday{font-size:.64rem;padding:0 .2rem;}
+.wk-bar.dashed{border:1.5px dashed rgba(255,255,255,.9);}
+.wk-bar.clipL{border-start-start-radius:0;border-end-start-radius:0;}
+.wk-bar.clipR{border-start-end-radius:0;border-end-end-radius:0;}
+.wk-lbl{overflow:hidden;text-overflow:ellipsis;}
+.wk-lbl .loc{font-weight:400;font-size:.62rem;opacity:.85;}
+.wk-dots{display:flex;gap:1px;flex-shrink:0;}
+.wk-dots i{width:7px;height:7px;border-radius:50%;border:1px solid rgba(255,255,255,.75);display:block;}
+.wk-title{font-weight:800;font-size:.95rem;}
+
+/* ============================================================
+   ריבוע ההקצאות הממתינות + מילוי שמות בתוך ההסמכה (לשונית גדודים)
+   ============================================================ */
+.allocbox{border:2px solid var(--fs-ok-line);background:var(--fs-ok-bg);border-radius:var(--radius);padding:1rem;}
+.allocbox > .ahead{display:flex;align-items:flex-start;justify-content:space-between;gap:.6rem;
+  margin-bottom:.8rem;flex-wrap:wrap;}
+.allocbox > .ahead h2{color:var(--fs-ok-ink);font-size:1.05rem;}
+.alloctiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(218px,1fr));gap:.6rem;}
+
+.atile{background:#fff;border:1.5px solid var(--fs-ok-line);border-radius:.7rem;padding:.6rem .65rem;
+  display:flex;flex-direction:column;gap:.45rem;text-align:start;cursor:pointer;font:inherit;
+  transition:transform .14s,box-shadow .14s,border-color .14s;}
+.atile:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.10);}
+.atile.sel{border-width:2px;border-color:#0f7a5c;box-shadow:0 6px 18px rgba(15,122,92,.20);}
+.atile .arow1{display:flex;align-items:flex-start;justify-content:space-between;gap:.35rem;}
+.atile .an{font-size:.86rem;font-weight:800;color:#1f2937;line-height:1.2;}
+.atile .ameta{font-size:.66rem;color:#6b7280;font-weight:600;margin-top:.1rem;}
+.atile .aurg{font-size:.61rem;font-weight:800;padding:.12rem .42rem;border-radius:99px;white-space:nowrap;
+  flex-shrink:0;}
+.atile .aurg.hot{background:var(--fs-bad-pill);color:var(--fs-bad-ink);}
+.atile .aurg.warm{background:#fdf0d8;color:#8a5a10;}
+.atile .aurg.cool{background:var(--fs-ok-pill);color:var(--fs-ok-ink);}
+.atile .asq{display:flex;gap:3px;flex-wrap:wrap;}
+.atile .asq b{width:13px;height:13px;border-radius:3px;display:block;}
+.atile .asq b.on{background:#0f9d6e;}
+.atile .asq b.off{background:#fff;border:1.5px dashed #c2c8cf;}
+.atile .afoot{display:flex;align-items:center;justify-content:space-between;gap:.35rem;}
+.atile .af{font-size:.73rem;font-weight:800;color:var(--fs-ok-ink);font-variant-numeric:tabular-nums;}
+.atile .acta{font-size:.66rem;font-weight:800;color:#0f7a5c;white-space:nowrap;}
+.atile.urgent{border-color:var(--fs-bad-line);}
+.atile.urgent .af{color:var(--fs-bad-ink);}
+.atile.urgent .asq b.off{border-color:var(--fs-bad-line);}
+.atile.done{opacity:.75;}
+
+/* ----- מילוי שמות ישירות בתוך ההסמכה ----- */
+.afill{background:#fff;border:2px solid #0f7a5c;border-radius:.7rem;padding:.85rem;margin-top:.75rem;
+  box-shadow:0 6px 20px rgba(15,122,92,.14);}
+.afill .fhead{display:flex;align-items:flex-start;justify-content:space-between;gap:.6rem;
+  flex-wrap:wrap;padding-bottom:.6rem;margin-bottom:.5rem;border-bottom:1px solid var(--border);}
+.afill .fhead h3{font-size:.95rem;}
+.afill .fmeta{font-size:.7rem;color:#6b7280;font-weight:600;margin-top:.15rem;}
+.slotrow{display:grid;grid-template-columns:24px 1fr 168px 26px;gap:.45rem;align-items:center;
+  padding:.3rem 0;border-bottom:1px dashed var(--border);}
+.slotrow:last-of-type{border-bottom:0;}
+.slotrow .sn{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  font-size:.67rem;font-weight:800;background:var(--muted);color:#5b6570;}
+.slotrow.done .sn{background:#0f9d6e;color:#fff;}
+.slotrow input{border:1px solid var(--input);border-radius:.45rem;padding:.32rem .5rem;font:inherit;
+  font-size:.8rem;background:var(--card);color:inherit;width:100%;}
+.slotrow.done input{border-color:#8fd9b6;background:#f4fbf8;font-weight:600;}
+.slotrow input:focus{outline:2px solid var(--ring);outline-offset:-1px;}
+.slotrow .src{font-size:.66rem;}
+.slotrow .del{border:0;background:transparent;cursor:pointer;color:#9aa1a9;font-size:.95rem;
+  font-family:inherit;line-height:1;}
+.slotrow .del:hover{color:var(--fs-bad-ink);}
+.afill .ffoot{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-top:.7rem;
+  padding-top:.6rem;border-top:1px solid var(--border);}
+.afill .fprog{font-size:.75rem;font-weight:800;margin-inline-end:auto;}
+
+/* ============================================================
+   מבנה כוח — פלטת הצבעים של האפליקציה השנייה
+   ============================================================ */
+:root{
+  --fs-ok-bg:#e6f6ef;      --fs-ok-line:#5ecfa6;   --fs-ok-ink:#0f7a5c;   --fs-ok-pill:#c7ebdb;
+  --fs-bad-bg:#fdeceb;     --fs-bad-line:#f19b98;  --fs-bad-ink:#c0392f;  --fs-bad-pill:#fbd5d2;
+  --fs-empty-line:#d5d9de; --fs-empty-ink:#9aa1a9; --fs-empty-bg:#fbfbfc;
+  --fs-zone-bg:#f7f8fa;    --fs-zone-line:#e5e8ec;
+}
+
+/* אזור מחלקה/כיתה — כותרת ימנית ורקע אפרפר */
+.fs-zone{background:var(--fs-zone-bg);border:1px solid var(--fs-zone-line);border-radius:var(--radius);
+  padding:.85rem;}
+.fs-zone > .zhead{display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+  margin-bottom:.75rem;flex-wrap:wrap;}
+.fs-zone > .zhead h2{font-size:1rem;font-weight:800;}
+/* חוליה — מסגרת מקווקוות פנימית עם תגית */
+.fs-team{border:1px dashed var(--fs-zone-line);border-radius:.7rem;padding:.7rem;background:#fff;
+  position:relative;}
+.fs-team + .fs-team{margin-top:.7rem;}
+.fs-team > .thead{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.55rem;}
+.fs-team > .thead .tname{font-size:.78rem;font-weight:700;color:var(--muted-foreground);}
+
+/* כרטיס תפקיד */
+.rolecard{border:2px solid var(--fs-empty-line);border-radius:.85rem;padding:.5rem .55rem;
+  background:var(--fs-empty-bg);display:flex;flex-direction:column;gap:.4rem;font-size:.8rem;min-height:130px;}
+.rolecard .rtop{display:flex;align-items:flex-start;justify-content:space-between;gap:.4rem;}
+.rolecard .rname{font-weight:800;font-size:.86rem;line-height:1.25;text-align:end;}
+.rolecard .lock{font-size:.7rem;opacity:.5;flex-shrink:0;}
+.rolecard .serial{font-size:.7rem;font-variant-numeric:tabular-nums;text-align:end;opacity:.75;font-weight:600;}
+.rolecard .slot{background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:.55rem;padding:.4rem .5rem;
+  flex:1;display:flex;flex-direction:column;gap:.15rem;justify-content:center;}
+.rolecard .slot .who{font-weight:700;font-size:.84rem;color:#1f2937;}
+.rolecard .slot .reqline{font-size:.68rem;font-weight:600;}
+.rolecard .pill{align-self:flex-start;font-size:.68rem;font-weight:700;padding:.12rem .5rem;border-radius:99px;}
+
+.rolecard.st-ok{border-color:var(--fs-ok-line);background:var(--fs-ok-bg);}
+.rolecard.st-ok .rname,.rolecard.st-ok .serial{color:var(--fs-ok-ink);}
+.rolecard.st-ok .slot .reqline{color:var(--fs-ok-ink);}
+.rolecard.st-ok .pill{background:var(--fs-ok-pill);color:var(--fs-ok-ink);}
+
+.rolecard.st-red{border-color:var(--fs-bad-line);background:var(--fs-bad-bg);}
+.rolecard.st-red .rname,.rolecard.st-red .serial{color:var(--fs-bad-ink);}
+.rolecard.st-red .slot .reqline{color:var(--fs-bad-ink);}
+.rolecard.st-red .pill{background:var(--fs-bad-pill);color:var(--fs-bad-ink);}
+
+.rolecard.st-empty{border-style:dashed;border-color:var(--fs-empty-line);background:transparent;}
+.rolecard.st-empty .rname,.rolecard.st-empty .serial{color:var(--fs-empty-ink);}
+.rolecard.st-empty .slot{background:transparent;border-style:dashed;border-color:var(--fs-empty-line);
+  align-items:center;justify-content:center;min-height:44px;}
+.rolecard.st-empty .slot .who{color:var(--fs-empty-ink);font-weight:600;font-size:.78rem;}
+.rolecard.st-empty .pill{background:#f0f1f3;color:var(--fs-empty-ink);}
+
+.reqs{display:flex;gap:.25rem;flex-wrap:wrap;}
+.req{font-size:.66rem;font-weight:600;padding:.1rem .4rem;border-radius:.3rem;border:1px solid var(--border);
+  background:var(--muted);white-space:nowrap;}
+.req.held{background:var(--fs-ok-pill);border-color:var(--fs-ok-line);color:var(--fs-ok-ink);}
+.req.missing{background:var(--fs-bad-pill);border-color:var(--fs-bad-line);color:var(--fs-bad-ink);}
+.legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.75rem;color:var(--muted-foreground);align-items:center;}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-inline-end:.3rem;
+  vertical-align:-2px;border:2px solid transparent;}
+
+/* ---------- Bank panel ---------- */
+.bankcard{border:1px solid var(--border);border-radius:.5rem;padding:.5rem .6rem;font-size:.8rem;
+  display:flex;flex-direction:column;gap:.25rem;background:var(--card);}
+.bankcard .row{gap:.3rem;}
+.capbar{height:10px;border-radius:99px;background:var(--muted);overflow:hidden;position:relative;}
+.capbar>i{display:block;height:100%;}
+.capbar .mark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--foreground);opacity:.55;}
+
+/* ---------- Gap detail ---------- */
+.gaprow{display:grid;grid-template-columns:28px 1fr 130px 90px;gap:.5rem;align-items:center;
+  font-size:.8rem;padding:.35rem 0;border-bottom:1px dashed var(--border);}
+.gaprow:last-child{border-bottom:0;}
+.gaprow .idx{width:24px;height:24px;border-radius:50%;background:var(--muted);display:grid;place-items:center;
+  font-size:.7rem;font-weight:700;}
+.fakeinput{border:1px solid var(--input);border-radius:.4rem;padding:.3rem .5rem;font:inherit;font-size:.8rem;
+  background:var(--card);width:100%;}
+.fakeinput::placeholder{color:var(--muted-foreground);}
+details.gapdetail{border:1px solid var(--border);border-radius:var(--radius);background:var(--card);overflow:hidden;}
+details.gapdetail>summary{cursor:pointer;padding:.7rem 1rem;display:flex;align-items:center;gap:.6rem;
+  font-weight:700;font-size:.9rem;list-style:none;}
+details.gapdetail>summary::-webkit-details-marker{display:none}
+details.gapdetail>summary::after{content:"▾";margin-inline-start:auto;color:var(--muted-foreground);}
+details.gapdetail[open]>summary{border-bottom:1px solid var(--border);background:var(--muted);}
+details.gapdetail .body{padding:.85rem 1rem;}
+.prereq{background:var(--muted);border-radius:.5rem;padding:.6rem .75rem;font-size:.8rem;}
+.prereq ul{margin:.3rem 0 0;padding-inline-start:1.1rem;}
+.prereq li{margin:.1rem 0;}
+.trend{display:flex;align-items:flex-end;gap:4px;height:60px;}
+.trend .b{flex:1;background:var(--chart-1);border-radius:3px 3px 0 0;min-width:8px;opacity:.85;}
+.trend .b.last{background:var(--chart-5);}
+.footnote{font-size:.75rem;color:var(--muted-foreground);}
+</style>
+</head>
+<body class="notes">
+
+<header class="appnav">
+  <div class="navrow">
+    <div class="brand">
+      <span class="logo">228</span>
+      <span class="txt">כשירונט · 228</span>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="disabled" title="לשונית קיימת — לא בסקופ">לוח שנה</button>
+      <button class="disabled" title="לשונית קיימת — לא בסקופ">הסמכות</button>
+      <button class="disabled" title="לשונית קיימת — לא בסקופ">הדרכות</button>
+      <button class="disabled" title="לשונית קיימת — נדרש בה ווידג'ט אחד חדש">דרישות גדודים</button>
+      <button class="disabled" title="לשונית קיימת — לא בסקופ">בנק הסמכות</button>
+      <button data-screen="battalions" class="active isnew">גדודים</button>
+      <button data-screen="force" class="isnew">שניים לפנים</button>
+      <button data-screen="gaps" class="isnew">פערים</button>
+      <button class="disabled" title="לשונית קיימת — לא בסקופ">דוחות</button>
+    </nav>
+    <div class="navtools">
+      <span class="pill" style="border-color:#80286C;color:#80286C;font-weight:700">תפקיד: גדוד 6228</span>
+      <span class="pill">🔔 3</span>
+    </div>
+  </div>
+</header>
+
+<div class="mockbar">
+  <div class="inner">
+    <strong>מוקאפ לפיתוח</strong>
+    <span>·</span>
+    <span>3 לשוניות חדשות בעיצוב המערכת הקיימת. הלשוניות האפורות מושבתות בכוונה.</span>
+    <button class="toggle" id="noteToggle" aria-pressed="true">הערות פיתוח: מוצגות</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ==================================================================
+     SCREEN 1 — גדודים (שדרוג הלשונית הקיימת)
+     ================================================================== -->
+<section class="screen active" id="screen-battalions">
+  <div class="stack">
+
+    <div class="spread">
+      <div>
+        <div class="row" style="gap:.6rem">
+          <span style="width:14px;height:30px;border-radius:99px;background:#80286C;display:inline-block"></span>
+          <h1 style="color:#80286C">גדוד 6228</h1>
+        </div>
+        <p class="sub">סיכום גדודי מלא של כלל ההסמכות, הפערים, ההקצאות והמעקב השלישותי.</p>
+      </div>
+      <div class="row">
+        <button class="btn">ייצוא לאקסל</button>
+        <button class="btn">הדפסה</button>
+      </div>
+    </div>
+
+    <div class="note"><b>מחליף</b> את <code>app/battalions/[code]/page.tsx</code>.
+      אין טבלאות DB חדשות למסך הזה — הכל חישוב read-only מעל <code>certifications</code>,
+      <code>certification_battalion_quotas</code>, <code>roster_entries</code>,
+      <code>certification_gap_rows/values</code>.<br>
+      <b>המסך גדודי בלבד.</b> הגדוד נקבע מ-<code>getCurrentRole()</code> — אין בורר גדוד ואין תצוגת
+      "כל הגדודים". משתמש גדוד רואה <b>רק</b> את הגדוד שלו; אכיפה בשרת ולא רק בסינון UI:
+      כל query מקבל <code>battalion_id</code> מהסשן, לא מה-URL.
+      תצוגה חטיבתית משווה בין גדודים — פאזה נפרדת.</div>
+
+    <div class="grid g4">
+      <div class="card kpi" style="--k:#d1414a">
+        <div class="lbl">סה"כ פערי הסמכות</div>
+        <div class="val">116</div>
+        <div class="delta">▼ 8 מהחודש הקודם</div>
+      </div>
+      <div class="card kpi" style="--k:#c9791c">
+        <div class="lbl">מקומות שהוקצו וממתינים לשמות</div>
+        <div class="val">22</div>
+        <div class="delta">ב-9 הסמכות · 2 נסגרות תוך 3 ימים</div>
+      </div>
+      <div class="card kpi" style="--k:#7a4bc4">
+        <div class="lbl">ממתינים לאישור שלישותי</div>
+        <div class="val">9</div>
+        <div class="delta">3 מעל 30 יום</div>
+      </div>
+      <div class="card kpi" style="--k:#0f8e86">
+        <div class="lbl">סיימו הסמכה ברבעון</div>
+        <div class="val">47</div>
+        <div class="delta">מתוך 61 שנרשמו</div>
+      </div>
+    </div>
+    <div class="note"><b>הגדרות מדידה — לממש בדיוק כך:</b><br>
+      • <b>פער</b> = <code>certification_gap_values.gap_count</code> (הזנה ידנית, המקור הקיים). בהמשך יוצג לצידו הפער המחושב מ"שניים לפנים".<br>
+      • <b>הקצאה שלא מולאה</b> = <code>certification_battalion_quotas.allocated_slots</code> פחות מספר <code>roster_entries</code> לאותו גדוד+הסמכה בסטטוס ≠ <code>rejected/did_not_participate</code>, עבור הסמכות בסטטוס <code>open/full/in_progress</code>.<br>
+      • <b>ממתין לאישור שלישותי</b> = <code>roster_entries.status = 'passed'</code> וללא רשומה בטבלה החדשה <code>roster_admin_confirmations</code>.<br>
+      • ה-KPI של הרבעון סופר <code>status='passed'</code> לפי <code>certifications.end_date</code>.</div>
+
+    <!-- ===== ריבוע ההקצאות הממתינות לשמות — מילוי ישיר בתוך ההסמכה ===== -->
+    <div class="allocbox">
+      <div class="ahead">
+        <div class="row">
+          <span class="badge" style="background:#fff;border-color:var(--fs-ok-line);color:var(--fs-ok-ink);font-weight:800"
+                id="allocSummary"></span>
+          <span class="footnote" style="color:var(--fs-ok-ink);opacity:.85">לחיצה על הסמכה פותחת מילוי שמות במקום.</span>
+        </div>
+        <h2>הקצאות שקיבלת — ממתינות לשמות</h2>
+      </div>
+      <div class="alloctiles" id="allocTiles"></div>
+      <div id="allocPanel"></div>
+    </div>
+    <div class="note"><b>הריבוע הירוק הוא הפעולה המרכזית של מפקד הגדוד במסך הזה.</b>
+      אריח לכל הסמכה שיש לה <code>certification_battalion_quotas</code> לגדוד <b>וטרם מולאה במלואה</b>.
+      הריבועים הקטנים = <code>allocated_slots</code>; מלא = קיים <code>roster_entries</code> בסטטוס
+      ≠ <code>rejected/did_not_participate</code>.<br>
+      <b>מילוי במקום, לא ניווט:</b> לחיצה על אריח פותחת מתחתיו פאנל עם שורה לכל מקום שהוקצה,
+      ומאפשרת להזין שמות ולשמור בלי לצאת מהמסך. שורה אחת = מקום אחד; מספר השורות =
+      <code>allocated_slots</code> בדיוק, אין הוספת שורות מעל ההקצאה.
+      השדה הוא autocomplete מתוך <code>role_assignments</code> של "שניים לפנים" (מציג תקן + חוליה),
+      עם אפשרות טקסט חופשי לחייל שאינו במבנה.<br>
+      השמירה יוצרת <code>roster_entries</code> דרך ה-endpoint הקיים של הרוסטר — <b>לא endpoint חדש</b>.
+      הריבועים והמונים מתעדכנים אופטימיסטית; אריח שמולא במלואו נעלם מהרשימה.<br>
+      מסגרת אדומה = פחות מ-5 ימים לסגירת רישום. מיון: דחוף קודם, אחר כך לפי מקומות פנויים יורד.
+      אין הקצאות פתוחות — להסתיר את הריבוע לגמרי במקום להציג מצב ריק.</div>
+
+    <div class="card">
+      <div class="spread" style="padding:.85rem 1rem;border-bottom:1px solid var(--border)">
+        <div class="section-title"><span class="dot"></span><h2>לוח שנה — הסמכות עם הקצאות לגדוד 6228</h2></div>
+        <div class="row">
+          <span class="badge ok">מולא</span>
+          <span class="badge warn">חלקי</span>
+          <span class="badge bad">אין שמות</span>
+          <span class="badge">מסגרת מקווקוות = גורם משפיע</span>
+        </div>
+      </div>
+
+      <div style="padding:.85rem 1rem" class="stack-sm">
+        <div class="wk-bar-top no-print">
+          <span class="wk-title" id="wkTitle"></span>
+          <div class="wk-navs">
+            <button class="wk-nav" id="wkNext" title="שבוע הבא" aria-label="שבוע הבא">&#8249;</button>
+            <button class="wk-nav" id="wkPrev" title="שבוע קודם" aria-label="שבוע קודם">&#8250;</button>
+            <button class="btn xs" id="wkToday">היום</button>
+            <input type="date" id="wkJump" value="2026-09-14" title="קפיצה לשבוע של תאריך">
+          </div>
+        </div>
+
+        <div class="wk-cal" id="weekcal"></div>
+      </div>
+
+      <div class="note" style="margin:0 1rem 1rem"><b>שימוש חוזר:</b> זו בדיוק שורת השבוע של
+        <code>components/calendar/month-view.tsx</code> — <code>grid-cols-8</code> (תא מספר שבוע + 7 ימים),
+        <code>assignLanes()</code> לנתיבים כדי שבָּר לא יקפוץ שורה בין שבועות, chips של יום-בודד בתוך התא
+        מתחת לנתיבים, ותא היום במסגרת. <b>לא לכתוב רכיב חדש</b> — לחלץ את שורת השבוע ל-<code>WeekRow</code>
+        ולהשתמש בה גם ב-<code>MonthView</code> וגם כאן.<br>
+        <b>הניווט:</b> חצים בשני צידי הלוח, צעד של 7 ימים. חץ ימין = שבוע קודם, חץ שמאל = שבוע הבא
+        (כמו <code>ChevronRight = subMonths</code> ב-MonthView הקיים). בנוסף כפתור "היום" וקפיצה לתאריך.<br>
+        <b>הסינון היחיד שנוסף:</b> רק הסמכות שיש להן <code>certification_battalion_quotas</code> לגדוד המחובר.
+        גורמים משפיעים מוצגים תמיד בנתיב הראשון ובמסגרת מקווקוות, כמו ב-MonthView.<br>
+        <b>הנקודות בבָּר:</b> הראשונה = מצב מילוי ההקצאה (ירוק מולא / כתום חלקי / אדום אין שמות),
+        השנייה = צבע הגדוד מ-<code>battalionBarStyle()</code>. הטקסט <code>שם - מיקום</code> כמו ב-
+        <code>CertificationChip</code>.<br>
+        בָּר שנחתך בקצה השבוע מאבד את העיגול בצד החתוך — סימן שהוא ממשיך.
+        לחיצה &rarr; <code>/certifications/[id]</code>.</div>
+    </div>
+
+    <!-- ===== שורת משימות פתוחות ===== -->
+    <div class="card">
+      <div class="spread" style="padding:.85rem 1rem;border-bottom:1px solid var(--border)">
+        <div class="section-title"><span class="dot" style="background:var(--chart-4)"></span>
+          <h2>משימות פתוחות</h2></div>
+        <div class="row">
+          <span class="badge warn" id="taskCount"></span>
+          <button class="btn xs">הצג גם משימות שטופלו</button>
+        </div>
+      </div>
+      <div style="padding:.4rem 1rem 1rem"><div class="tasklist" id="tasklist"></div></div>
+      <div class="note" style="margin:0 1rem 1rem"><b>גרסה גדודית של</b>
+        <code>components/layout/open-tasks-bar.tsx</code> — אותו מקור נתונים
+        (<code>lib/db/repositories/open-tasks.ts</code>), אבל מסונן ל-<code>battalion_id</code> של הסשן
+        ומוצג כרשימה אנכית עם פעולה לכל שורה, ולא כשורת pills אופקית.<br>
+        <b>ארבעה סוגי משימה, כל אחד עם שאילתה משלו:</b><br>
+        • <code>doc</code> — מסמך או אישור חסר לחייל שכבר שובץ. דורש טבלה חדשה
+        <code>roster_required_documents (roster_entry_id, doc_type, is_provided)</code>, ו-
+        <code>certification_required_documents (template_id, doc_type)</code> להגדרת מה נדרש לכל סוג הסמכה.<br>
+        • <code>adm</code> — אישור שלישותי: <code>status='passed'</code> ללא רשומה ב-
+        <code>roster_admin_confirmations</code> (1.4). מקובץ לפי הסמכה, לא שורה לכל חייל.<br>
+        • <code>slot</code> — הקצאה שטרם מולאה. אותו חישוב של הריבוע הירוק (1.8) —
+        <b>פונקציה אחת</b>, לא שני מימושים.<br>
+        • <code>prq</code> — דרישת מעבר שלא סומנה: <code>roster_entries.meets_prerequisite IS NULL</code>.<br>
+        <b>מיון:</b> לפי דחיפות (ימים לסגירת רישום) ואז לפי מספר החיילים המושפעים.
+        לחיצה על משימת <code>slot</code> פותחת את פאנל המילוי בריבוע הירוק; שאר הסוגים מנווטים
+        ל-<code>/certifications/[id]</code>. אין משימות — הודעת "אין משימות פתוחות" בירוק,
+        כמו במצב הריק של <code>OpenTasksBar</code> הקיים.</div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="spread" style="padding:.75rem 1rem;border-bottom:1px solid var(--border)">
+          <div class="section-title"><span class="dot" style="background:var(--chart-2)"></span><h2>סיימו הסמכה — לוודא אישור שלישותי</h2></div>
+          <span class="badge info">9 חיילים</span>
+        </div>
+        <div style="overflow-x:auto"><table>
+          <thead><tr><th>חייל</th><th>מ.א.</th><th>הסמכה</th><th>סיים</th><th>ממתין</th><th>אושר?</th></tr></thead>
+          <tbody>
+            <tr><td>רס"ל א. כהן</td><td class="num">9214537</td><td>הסמכת נגב</td><td class="num">12/06</td>
+              <td><span class="badge bad">66 יום</span></td><td><button class="btn xs">סמן כאושר</button></td></tr>
+            <tr><td>סמ"ר ד. לוי</td><td class="num">9331028</td><td>הסמכת נגב</td><td class="num">12/06</td>
+              <td><span class="badge bad">66 יום</span></td><td><button class="btn xs">סמן כאושר</button></td></tr>
+            <tr><td>סמל י. אזולאי</td><td class="num">9402911</td><td>הסמכת קלע</td><td class="num">21/07</td>
+              <td><span class="badge warn">27 יום</span></td><td><button class="btn xs">סמן כאושר</button></td></tr>
+            <tr><td>רב"ט מ. פרץ</td><td class="num">9455180</td><td>הסמכת מטול</td><td class="num">04/08</td>
+              <td><span class="badge">13 יום</span></td><td><button class="btn xs">סמן כאושר</button></td></tr>
+            <tr style="opacity:.55"><td>סמ"ר נ. ביטון</td><td class="num">9377402</td><td>הסמכת מא"ג</td><td class="num">30/05</td>
+              <td><span class="badge ok">אושר 04/06</span></td><td><span class="badge ok">✓ אושר</span></td></tr>
+          </tbody>
+        </table></div>
+        <div class="note" style="margin:.6rem 1rem 1rem"><b>טבלה חדשה נדרשת:</b>
+          <code>roster_admin_confirmations (id, roster_entry_id UNIQUE, confirmed_at, confirmed_by_role, note)</code>.
+          <b>אינווריאנט:</b> הרשומה הזו לא משנה את <code>roster_entries.status</code> — היא שכבת מעקב נפרדת.
+          "ממתין" מחושב מ-<code>certifications.end_date</code>. צביעה: ירוק &lt;14 יום, כתום 14-30, אדום &gt;30.
+          מעל 30 יום — התראה אוטומטית. שורות מאושרות מוצגות מעומעמות ומסוננות כברירת מחדל.</div>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card pad">
+        <div class="section-title" style="margin-bottom:.7rem"><span class="dot" style="background:var(--chart-1)"></span><h2>מגמת פערים — 6 חודשים</h2></div>
+        <div class="trend">
+          <div class="b" style="height:100%" title="מרץ: 58"></div>
+          <div class="b" style="height:91%" title="אפריל: 53"></div>
+          <div class="b" style="height:88%" title="מאי: 51"></div>
+          <div class="b" style="height:79%" title="יוני: 46"></div>
+          <div class="b" style="height:76%" title="יולי: 44"></div>
+          <div class="b last" style="height:62%" title="אוגוסט: 36"></div>
+        </div>
+        <div class="row" style="justify-content:space-between;margin-top:.4rem">
+          <span class="footnote">מרץ</span><span class="footnote">אפריל</span><span class="footnote">מאי</span>
+          <span class="footnote">יוני</span><span class="footnote">יולי</span><span class="footnote">אוגוסט</span>
+        </div>
+        <div class="note" style="margin-top:.7rem">דורש שמירת היסטוריה — טבלה
+          <code>certification_gap_snapshots (row_id, battalion_id, gap_count, snapshot_month)</code>,
+          נכתבת ע"י job חודשי או trigger על עדכון <code>certification_gap_values</code>.
+          <b>אופציונלי לפאזה זו</b> — אם נדחה, להסתיר את הכרטיס במקום להציג נתון ריק.</div>
+      </div>
+
+      <div class="card pad">
+        <div class="section-title" style="margin-bottom:.7rem"><span class="dot" style="background:var(--chart-3)"></span><h2>דרישות פתוחות ופעולות נדרשות</h2></div>
+        <div class="stack-sm">
+          <div class="spread" style="border:1px solid var(--border);border-radius:.5rem;padding:.5rem .65rem">
+            <span style="font-size:.83rem">הסמכת נגב · 15 מקומות</span><span class="badge warn">בבדיקה חטיבתית</span></div>
+          <div class="spread" style="border:1px solid var(--border);border-radius:.5rem;padding:.5rem .65rem">
+            <span style="font-size:.83rem">הסמכת קלע · 17 מקומות</span><span class="badge info">נפתחה הסמכה</span></div>
+          <div class="spread" style="border:1px solid var(--border);border-radius:.5rem;padding:.5rem .65rem">
+            <span style="font-size:.83rem">מקל"ר · 3 מקומות</span><span class="badge ok">אושר</span></div>
+          <button class="btn" style="align-self:flex-start">+ פתיחת דרישה חדשה</button>
+        </div>
+        <div class="note" style="margin-top:.7rem">שימוש חוזר ב-<code>listRequests({battalionCode})</code>
+          וב-<code>RequestStatusBadge</code> הקיימים. אין לוגיקה חדשה כאן.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================================================================
+     SCREEN 2 — שניים לפנים (מודול מבנה כוח והתקנה)
+     ================================================================== -->
+<section class="screen" id="screen-force">
+  <div class="stack">
+
+    <div class="spread">
+      <div>
+        <div class="row" style="gap:.6rem">
+          <span style="width:14px;height:30px;border-radius:99px;background:#80286C;display:inline-block"></span>
+          <h1 style="color:#80286C">שניים לפנים · גדוד 6228</h1>
+        </div>
+        <p class="sub">מבנה כוח ואיוש תקנים ברמת הפלוגה — איחוד האפליקציה השנייה לתוך המערכת.</p>
+      </div>
+      <div class="row">
+        <button class="btn" id="fsEdit">✎ מצב עריכה</button>
+        <button class="btn">ייבוא (dry-run)</button>
+        <button class="btn">ייצוא מצבה</button>
+      </div>
+    </div>
+
+    <div class="note"><b>מודול עצמאי — לא מיזוג לטבלאות הפערים הקיימות.</b>
+      טבלאות חדשות: <code>roles</code>, <code>companies</code>, <code>role_assignments</code>,
+      <code>bank_soldiers</code>, <code>soldier_certifications</code>.<br>
+      <b>האינווריאנט המרכזי, וזה מה שמצב העריכה ממחיש:</b> <code>roles.req1/req2</code> הם נתוני ייחוס
+      סטטיים. <b>התפקיד קבוע</b> — מה שזז הוא רק החייל. אין endpoint שמקבל שדות דרישה ושדות שיבוץ
+      באותו payload. מסך זה כותב <b>רק</b> ל-<code>role_assignments</code> ול-<code>bank_soldiers</code>.</div>
+
+    <div class="card pad">
+      <div class="grid g3" style="align-items:end">
+        <div class="stack-sm">
+          <label class="sub" style="font-weight:600">פלוגה</label>
+          <select class="fakeinput"><option>פלוגה א'</option><option>פלוגה ב'</option>
+            <option>פלוגה ג'</option><option>פלוגה מסייעת</option></select>
+        </div>
+        <div class="stack-sm">
+          <label class="sub" style="font-weight:600">תצוגה</label>
+          <div class="row">
+            <button class="btn primary xs">קנבס תפקידים</button>
+            <button class="btn xs">טבלה</button>
+            <button class="btn xs">חוסרים בלבד</button>
+          </div>
+        </div>
+        <div class="stack-sm">
+          <label class="sub" style="font-weight:600">סינון</label>
+          <div class="row">
+            <button class="btn xs">הכל</button>
+            <button class="btn xs">תקנים ריקים</button>
+            <button class="btn xs">חסרי הסמכה</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g4" id="fsKpis"></div>
+    <div class="note" id="fsKpiNote"></div>
+
+    <div class="fs-pills" id="deptPills"></div>
+
+    <div id="fsEditBanner"></div>
+
+    <div class="fslayout">
+      <div class="stack" id="fsCanvas"></div>
+
+      <aside class="stack-sm" style="position:sticky;top:1rem">
+        <div class="card" id="bankPanel">
+          <button class="sidehead" data-toggle="bank">
+            <span class="row" style="gap:.4rem"><span class="chev">▾</span><b>בנק 120%</b></span>
+            <span class="badge info" id="bankTotal"></span>
+          </button>
+          <div class="sidebody" id="bankBody">
+            <div class="capwrap">
+              <div class="capbar"><i id="capFill"></i><span class="mark" id="capMark"></span></div>
+              <p class="footnote" id="capText"></p>
+            </div>
+            <div class="bankfilters" id="bankFilters"></div>
+            <input class="fakeinput" placeholder="חיפוש שם / מ.א." style="margin:.4rem 0">
+            <div class="banklist" id="bankList"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <button class="sidehead" data-toggle="xfer">
+            <span class="row" style="gap:.4rem"><span class="chev">▸</span><b>העברה לפלוגה</b></span>
+            <span class="badge">מחוץ לסקופ</span>
+          </button>
+          <div class="sidebody collapsed" id="xferBody">
+            <p class="sub" style="font-size:.78rem">העברת חיילים בין פלוגות ובין בנקים.</p>
+            <div class="note" style="margin-top:.5rem">מחוץ לסקופ הפאזה הזו, כמו גם מודל
+              capability-URL ומפתחות אישיים. הפאנל מוצג מקופל ומושבת כדי שהמשתמש ידע שהיכולת מתוכננת,
+              ולא יחפש אותה. הרשאות — לפי מודל התפקידים הקיים של המערכת
+              (<code>lib/auth/permissions</code>).</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="legend card pad">
+      <span><i style="background:var(--fs-ok-bg);border-color:var(--fs-ok-line)"></i>מאויש ומוסמך</span>
+      <span><i style="background:var(--fs-bad-bg);border-color:var(--fs-bad-line)"></i>מאויש · חסרה הסמכה</span>
+      <span><i style="background:transparent;border-color:var(--fs-empty-line);border-style:dashed"></i>תקן ריק</span>
+      <span>🔒 דרישות התקן נעולות — לא ניתנות לעריכה מהמסך הזה</span>
+      <span>"/" = דרישה חלופית</span>
+    </div>
+
+    <div class="card pad">
+      <div class="section-title" style="margin-bottom:.6rem"><span class="dot" style="background:var(--chart-2)"></span>
+        <h2>עדכון הסמכה מלשונית "הסמכות" — אישור נדרש</h2></div>
+      <div class="spread" style="border:1px solid oklch(0.53 0.22 262 / .3);background:var(--accent);border-radius:.6rem;padding:.7rem .85rem">
+        <div>
+          <div style="font-weight:700;font-size:.87rem">נדב אפללו (9502771) עבר "רחפן אלפא" ב-15/09</div>
+          <div class="sub">התאמה לתקן 52 · טילן כתף · רחפן · חוליה ב'</div>
+        </div>
+        <div class="row">
+          <button class="btn primary xs">רשום כהסמכה מוחזקת</button>
+          <button class="btn xs">התעלם</button>
+        </div>
+      </div>
+      <div class="note" style="margin-top:.6rem"><b>נקודת אינטגרציה יחידה ממודול ההסמכות — חד-כיוונית:</b>
+        כאשר <code>roster_entries.status</code> עובר ל-<code>'passed'</code>, ושם ההסמכה תואם את אוצר המילים
+        של המודול או אחד מדגמי הרחפן — להציע רישום ב-<code>soldier_certifications</code>.
+        <b>אסור</b> לכתוב חזרה ל-<code>certifications</code> / <code>roster_entries</code> מהמודול הזה.
+        ההתאמה לפי <code>personal_number</code>; אין התאמה ← אין הצעה (לא ליצור חייל אוטומטית).</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================================================================== -->
+<section class="screen" id="screen-gaps">
+  <div class="stack">
+
+    <div class="spread">
+      <div>
+        <div class="row" style="gap:.6rem">
+          <span style="width:14px;height:30px;border-radius:99px;background:#80286C;display:inline-block"></span>
+          <h1 style="color:#80286C">פערים · גדוד 6228</h1>
+        </div>
+        <p class="sub">כל פערי ההסמכה של הגדוד, מקובצים לפי משפחת נושא. ריבוע = מקום נדרש אחד.</p>
+      </div>
+      <div class="row">
+        <button class="btn">ייצוא לאקסל</button>
+        <button class="btn primary">פתח דרישה לפערים המסומנים</button>
+      </div>
+    </div>
+
+    <div class="note"><b>המסך גדודי בלבד</b> — אין מטריצה חוצת-גדודים ואין השוואה בין גדודים.
+      <code>battalion_id</code> נלקח מהסשן ולא מה-URL.</div>
+
+    <div class="grid g4" id="gapKpis"></div>
+    <div class="note" id="gapKpiNote"></div>
+
+    <div class="card pad">
+      <div class="spread">
+        <div class="famchips" id="famchips"></div>
+        <div class="row">
+          <span class="footnote">מיון:</span>
+          <button class="btn xs primary">פער יורד</button>
+          <button class="btn xs">משפחה</button>
+          <button class="btn xs">שם</button>
+        </div>
+      </div>
+      <div class="note" style="margin-top:.6rem">הצ'יפים מסננים את הגריד. משפחת הנושא נשמרת בשדה
+        <code>certification_families (id, name, hue_base, sort_order)</code> ו-
+        <code>certification_gap_rows.family_id</code>. הגוונים נגזרים מ-<code>hue_base</code> בקוד ולא נשמרים
+        פר-הסמכה — כך הוספת הסמכה חדשה למשפחה מקבלת גוון אוטומטית בלי מיגרציה.</div>
+    </div>
+
+    <div class="stack" id="gapsroot"></div>
+
+    <div class="legend card pad">
+      <span><b>■</b> ריבוע מלא = מקום מאויש ומוסמך</span>
+      <span><b>□</b> ריבוע ריק = פער</span>
+      <span style="color:#0f7a5c"><b>■</b> ריבוע ירוק כהה = עודף מעל הנדרש</span>
+      <span>פס צד = פער קריטי (10+)</span>
+      <span>לחיצה על ווידג'ט פותחת את פירוט השיבוץ</span>
+    </div>
+
+    <div class="section-title"><span class="dot" style="background:var(--chart-5)"></span>
+      <h2>פירוט ושיבוץ — דוגמה</h2></div>
+
+    <details class="gapdetail" open>
+      <summary>
+        <span class="badge bad">פער 26</span>
+        איבו
+        <span class="sub" style="font-weight:400">· רחפנים · 14 מתוך 40 · 8 מקומות הוקצו במחזור 9 · 4 שמות מלאו</span>
+      </summary>
+      <div class="body stack">
+        <div class="grid g3">
+          <div class="prereq">
+            <b>מקור הדרישה</b>
+            <ul>
+              <li><b>צורך מבצעי:</b> 40 מוסמכים</li>
+              <li>מבנה וארגון: 12 בצוות + 4 חפ"ק = 16</li>
+              <li class="footnote">שני מקורות שונים לאותה הסמכה — הצורך המבצעי גבוה מהתקן הפורמלי</li>
+            </ul>
+          </div>
+          <div class="prereq">
+            <b>דרישות מעבר להסמכה</b>
+            <ul>
+              <li>שירות סדיר 4 חודשים ומעלה</li>
+              <li>כשירות רפואית 82 ומעלה</li>
+              <li>אישור מפקד פלוגה בכתב</li>
+            </ul>
+          </div>
+          <div class="prereq">
+            <b>ההסמכה הקרובה</b>
+            <ul>
+              <li>מחזור 9 · 02/09—06/09</li>
+              <li>הוקצו לגדוד: 8 מקומות</li>
+              <li>מתוך 26 פערים — 18 יישארו פתוחים</li>
+              <li>סגירת רישום: 26/08 (3 ימים)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <div class="spread" style="margin-bottom:.4rem">
+            <h3>שיבוץ ל-8 המקומות שהוקצו</h3>
+            <div class="row">
+              <span class="badge warn">4 מתוך 8 מולאו</span>
+              <button class="btn xs">בחר מ"שניים לפנים"</button>
+            </div>
+          </div>
+          <div class="card pad">
+            <div class="gaprow" style="font-weight:700;color:var(--muted-foreground);font-size:.75rem">
+              <span></span><span>חייל</span><span>מקור</span><span></span>
+            </div>
+            <div class="gaprow">
+              <span class="idx">1</span>
+              <input class="fakeinput" value="עומר קבלו · 9481077">
+              <span class="badge info">תקן 46 · חוליה א'</span>
+              <button class="btn xs ghost">הסר</button>
+            </div>
+            <div class="gaprow">
+              <span class="idx">2</span>
+              <input class="fakeinput" value="נדב אפללו · 9502771">
+              <span class="badge info">תקן 52 · חוליה ב'</span>
+              <button class="btn xs ghost">הסר</button>
+            </div>
+            <div class="gaprow">
+              <span class="idx">3</span>
+              <input class="fakeinput" value="שהם סנגאונים · 9455180">
+              <span class="badge info">תקן 43 · מפקדה</span>
+              <button class="btn xs ghost">הסר</button>
+            </div>
+            <div class="gaprow">
+              <span class="idx">4</span>
+              <input class="fakeinput" value="יובל מזרחי · 9377402">
+              <span class="badge">הזנה חופשית</span>
+              <button class="btn xs ghost">הסר</button>
+            </div>
+            <div class="gaprow">
+              <span class="idx">5</span>
+              <input class="fakeinput" placeholder="הקלד שם או בחר מהמבנה…">
+              <span class="sub">—</span>
+              <button class="btn xs ghost">הסר</button>
+            </div>
+            <div class="gaprow" style="opacity:.55">
+              <span class="idx">6</span>
+              <input class="fakeinput" placeholder="הקלד שם או בחר מהמבנה…">
+              <span class="sub">—</span><span></span>
+            </div>
+            <div class="gaprow" style="opacity:.55">
+              <span class="idx">7</span>
+              <input class="fakeinput" placeholder="הקלד שם או בחר מהמבנה…">
+              <span class="sub">—</span><span></span>
+            </div>
+            <div class="gaprow" style="opacity:.55">
+              <span class="idx">8</span>
+              <input class="fakeinput" placeholder="הקלד שם או בחר מהמבנה…">
+              <span class="sub">—</span><span></span>
+            </div>
+          </div>
+          <div class="note" style="margin-top:.6rem"><b>שדה החייל הוא dual-mode:</b>
+            או קישור ל-<code>role_assignments.id</code> (autocomplete מ"שניים לפנים", מציג תקן + חוליה),
+            או טקסט חופשי לחייל שאינו במבנה. שמירה ל-
+            <code>gap_nominations (id, gap_row_id, battalion_id, certification_id NULL, role_assignment_id NULL, free_text_name NULL, created_at)</code>
+            עם <code>CHECK</code> שאחד מהשניים מלא ולא שניהם.<br>
+            <b>אינווריאנט:</b> שמירת מועמד אינה יוצרת <code>roster_entries</code> ואינה נוגעת ב-<code>roles</code>.
+            "שלח לרישום" היא פעולה מפורשת ונפרדת.<br>
+            מספר השורות = <code>allocated_slots</code> בדיוק. אין הוספת שורות מעל ההקצאה.</div>
+        </div>
+
+        <div class="row">
+          <button class="btn primary">שלח 4 שמות לרישום</button>
+          <button class="btn">שמור כטיוטה</button>
+          <button class="btn">פתח דרישה ל-18 הנותרים</button>
+        </div>
+      </div>
+    </details>
+
+    <div class="card pad">
+      <div class="section-title" style="margin-bottom:.6rem"><span class="dot" style="background:var(--chart-4)"></span>
+        <h2>ווידג'ט לשילוב בלשונית "דרישות גדודים" הקיימת</h2></div>
+      <div class="card pad" style="background:var(--muted)">
+        <div class="spread" style="margin-bottom:.5rem">
+          <h3 style="font-size:.87rem">פערי תקן מחושבים · מקור: שניים לפנים</h3>
+          <span class="badge info">read-only · מקור נתונים שונה</span>
+        </div>
+        <div class="row" style="gap:.4rem">
+          <span class="badge">רחפנים · <b class="num">59</b></span>
+          <span class="badge">נהיגה וניוד · <b class="num">12</b></span>
+          <span class="badge">נשק וחימוש · <b class="num">23</b></span>
+          <span class="badge">רפואה · <b class="num">4</b></span>
+          <span class="badge">מכלול 750 · <b class="num">18</b></span>
+        </div>
+        <p class="footnote" style="margin-top:.5rem">המספרים אינם זהים לפער המוזן ידנית ואינם מחליפים אותו.
+          התאמה בין שני המקורות — פאזה נפרדת.</p>
+      </div>
+      <div class="note" style="margin-top:.6rem">זו <b>נקודת האינטגרציה היחידה</b> לתוך
+        <code>components/requests/certification-gaps-table.tsx</code> — ווידג'ט read-only מעל הטבלה הקיימת,
+        לצידה ולא במקומה. אין כתיבה ל-<code>certification_gap_values</code>.</div>
+    </div>
+
+  </div>
+</section>
+
+</div>
+<datalist id="soldierlist">
+  <option value="רועי עמיר · 9401255"></option>
+  <option value="שהם סנגאונים · 9455180"></option>
+  <option value="עדן סולומון · 9502288"></option>
+  <option value="דניאל אמבר · 9491330"></option>
+  <option value="עומר קבלו · 9481077"></option>
+  <option value="אלישי לוי · 9412008"></option>
+  <option value="אילון פודולסקי · 9477310"></option>
+  <option value="רועי סב לזונו · 9430117"></option>
+  <option value="עמיחי קליינברג · 9466201"></option>
+  <option value="נדב אפללו · 9502771"></option>
+  <option value="אורי נחום · 9488120"></option>
+  <option value="יובל רומנו · 9510442"></option>
+</datalist>
+<script>
+document.getElementById('noteToggle').addEventListener('click', function(){
+  const on = this.getAttribute('aria-pressed') === 'true';
+  this.setAttribute('aria-pressed', String(!on));
+  document.body.classList.toggle('notes', !on);
+  this.textContent = 'הערות פיתוח: ' + (!on ? 'מוצגות' : 'מוסתרות');
+});
+document.getElementById('tabs').addEventListener('click', function(e){
+  const b = e.target.closest('button[data-screen]');
+  if(!b) return;
+  this.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+b.dataset.screen).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+/* ============================================================
+   פערים — גדוד 6228
+   ------------------------------------------------------------
+   required אינו מוקלד. הוא מחושב ממפתח חישוב:
+       required = Σ (qty × מספר היחידות מאותו סוג במבנה)
+   מספר היחידות נלקח אוטומטית מ"שניים לפנים" (טבלת roles),
+   ולכן שינוי במבנה מעדכן את כל הדרישות בלי הזנה מחדש.
+   held  = מספר המוסמכים בגדוד, גם הוא מ"שניים לפנים".
+   gap   = MAX(0, required − held)  — לכל שורה בנפרד.
+   ============================================================ */
+
+/* יחידות המבנה ומספרן בגדוד — נספר מ-roles, לא מוקלד */
+const UNITS = [
+  { id:'team',    name:'צוות',                n:3 },
+  { id:'teamAll', name:'צוות (כולל ניוד)',    n:4 },
+  { id:'mob',     name:'צוות ניוד',           n:1 },
+  { id:'heavy',   name:'צוות תקיפה כבדה',     n:1 },
+  { id:'hq',      name:'חפ"ק',                n:1 },
+  { id:'mifleg',  name:'מפלג',                n:1 },
+  { id:'mihlol',  name:'מכלול',               n:1 },
+  { id:'med',     name:'חוליה רפואית',        n:1 },
+  { id:'company', name:'פלוגה',               n:4 },
+];
+const unitOf = id => UNITS.find(u => u.id === id);
+
+const FAMILIES = [
+  { id:'drone', name:'רחפנים',      ink:'#0b7a4b', line:'#8fd9b6', bg:'#eaf7f0' },
+  { id:'drive', name:'נהיגה וניוד', ink:'#1d4ed8', line:'#a5bcf5', bg:'#ecf1fe' },
+  { id:'arms',  name:'נשק וחימוש',  ink:'#b45309', line:'#f0c489', bg:'#fdf3e6' },
+  { id:'med',   name:'רפואה',       ink:'#be123c', line:'#f3a6b8', bg:'#fdeef2' },
+  { id:'sys',   name:'מכלול 750',   ink:'#6d28d9', line:'#c4aef2', bg:'#f4eefe' },
+];
+
+/* src: 'est' = מבנה וארגון לקרב | 'ops' = צורך מבצעי
+   keys: מפתח לכל מקור. required נגזר מהמפתח של המקור הפעיל. */
+const GAPS = [
+  { fam:'drone', name:'איבו',        held:14, src:'ops',
+    keys:{ est:[[4,'team'],[4,'hq']], ops:[[12,'team'],[4,'hq']] } },
+  { fam:'drone', name:'אלפא',        held:7,  src:'ops',
+    keys:{ est:[[2,'team']],          ops:[[4,'team']] } },
+  { fam:'drone', name:'בומרנג',      held:7,  src:'ops',
+    keys:{ est:[[2,'team']],          ops:[[4,'team']] } },
+  { fam:'drone', name:'ציין אורין',  held:0,  src:'ops',
+    keys:{ est:[[2,'team']],          ops:[[4,'team']] } },
+  { fam:'drone', name:'פלייכארט',    held:7,  src:'ops',
+    keys:{ est:[[2,'heavy']],         ops:[[4,'heavy']] } },
+  { fam:'drone', name:'עטלף',        held:7,  src:'ops',
+    keys:{ est:[[2,'team']],          ops:[[4,'team']] } },
+  { fam:'drone', name:'אווטה',       held:8,  src:'est',
+    keys:{ est:[[2,'team']],          ops:[[2,'team']] } },
+  { fam:'drone', name:'חמשוש',       held:0,  src:'est',
+    keys:{ est:[[2,'team']],          ops:[[2,'team']] } },
+
+  { fam:'drive', name:'נהיגה מבצעית', held:4, src:'ops',
+    keys:{ est:[[6,'mob']],           ops:[[3,'team']] } },
+  { fam:'drive', name:'האמר מנהלה',  held:24, src:'ops',
+    keys:{ est:[[4,'teamAll'],[6,'hq'],[7,'mifleg']], ops:[[4,'teamAll'],[6,'hq'],[7,'mifleg']] } },
+  { fam:'drive', name:'אושקוש / FMTV', held:0, src:'ops',
+    keys:{ est:[[2,'mob']],           ops:[[2,'mob']] } },
+
+  { fam:'arms', name:'מטול צד',      held:0,  src:'est',
+    keys:{ est:[[2,'teamAll']],       ops:[[2,'teamAll']] } },
+  { fam:'arms', name:'נגב 7',        held:0,  src:'est',
+    keys:{ est:[[2,'team'],[1,'mob']], ops:[[2,'team'],[1,'mob']] } },
+  { fam:'arms', name:'פגיון',        held:2,  src:'est',
+    keys:{ est:[[1,'teamAll'],[2,'hq']], ops:[[1,'teamAll'],[2,'hq']] } },
+  { fam:'arms', name:'תרמיס',        held:2,  src:'est',
+    keys:{ est:[[1,'teamAll'],[2,'hq']], ops:[[1,'teamAll'],[2,'hq']] } },
+
+  { fam:'med', name:'חובש',          held:6,  src:'ops',
+    keys:{ est:[[2,'team'],[1,'mob'],[2,'med']], ops:[[2,'team'],[1,'mob'],[2,'med']] } },
+  { fam:'med', name:'מט"ב',          held:0,  src:'est',
+    keys:{ est:[[1,'med']],           ops:[[1,'med']] } },
+
+  { fam:'sys', name:'ציד 750',       held:2,  src:'est',
+    keys:{ est:[[1,'teamAll'],[4,'hq'],[6,'mihlol']], ops:[[1,'teamAll'],[4,'hq'],[6,'mihlol']] } },
+  { fam:'sys', name:'מנהל מערכת 750', held:0, src:'est',
+    keys:{ est:[[6,'mihlol']],        ops:[[6,'mihlol']] } },
+];
+GAPS.forEach((g,i) => g.id = i);
+
+const SRC_NAME = { est:'מבנה וארגון לקרב', ops:'צורך מבצעי' };
+const keyTotal = k => k.reduce((s,[q,u]) => s + q * unitOf(u).n, 0);
+const reqOf     = g => keyTotal(g.keys[g.src]);
+const gapOf     = g => Math.max(0, reqOf(g) - g.held);
+const surplusOf = g => Math.max(0, g.held - reqOf(g));
+const keyText   = g => g.keys[g.src].map(([q,u]) =>
+  `${q} לכל ${unitOf(u).name}${unitOf(u).n>1?` ×${unitOf(u).n}`:''}`).join('  +  ');
+
+/* ---------- KPI ---------- */
+const CLOSED_Q = 22;                 /* מקומות שנסגרו הרבעון */
+const ALLOCATED_OPEN = 22;           /* מקומות שהוקצו במחזורים ועדיין ממתינים לשמות */
+function renderGapKpis(){
+  const gap = GAPS.reduce((s,g) => s + gapOf(g), 0);
+  const req = GAPS.reduce((s,g) => s + reqOf(g), 0);
+  const held = GAPS.reduce((s,g) => s + g.held, 0);
+  const forecast = Math.max(0, gap - ALLOCATED_OPEN);
+  const cards = [
+    { k:'#d1414a', l:'סה"כ פער',            v:gap,  d:'מקומות חסרים' },
+    { k:'#12996c', l:'מוסמכים מול נדרש',
+      v:`${held}<span style="font-size:.9rem">/${req}</span>`, d:Math.round(held/req*100)+'% כיסוי' },
+    { k:'#1d7a5e', l:'נסגר הרבעון',          v:CLOSED_Q, d:'חיילים שסיימו והוסמכו' },
+    { k:'#c9791c', l:'צפי לסוף הרבעון',      v:forecast,
+      d:`אם כל ${ALLOCATED_OPEN} המקומות שהוקצו יתמלאו` },
+  ];
+  document.getElementById('gapKpis').innerHTML = cards.map(c =>
+    `<div class="card kpi" style="--k:${c.k}">
+      <div class="lbl">${c.l}</div><div class="val">${c.v}</div><div class="delta">${c.d}</div></div>`).join('');
+  document.getElementById('gapKpiNote').innerHTML =
+    `<b>ארבעת המדדים:</b><br>
+     • <b>סה"כ פער</b> = <code>Σ MAX(0, required − held)</code> <b>לכל שורה בנפרד</b>. כאן ${gap}.
+       <code>SUM(required) − SUM(held)</code> ייתן ${req-held} ויסתיר ${gap-(req-held)} מקומות חסרים אמיתיים,
+       כי בפלייכארט ובאווטה יש עודף. עודף לא מקוזז מול חסר בהסמכה אחרת.<br>
+     • <b>נסגר הרבעון</b> = <code>roster_entries.status='passed'</code> להסמכות שנגמרו ברבעון, לגדוד.
+       זה המדד היחיד שדורש היסטוריה — ראה אזהרה למטה.<br>
+     • <b>צפי לסוף הרבעון</b> = <code>פער − מקומות שהוקצו וטרם מולאו</code> = ${gap} − ${ALLOCATED_OPEN} = ${forecast}.
+       זו התחזית האופטימית: מה יישאר פתוח אם כל ההקצאות הקיימות ימולאו ויעברו.
+       <b>הנחה שצריך להציג למשתמש:</b> ההסתמכות היא על מילוי מלא ומעבר מלא. אם נדרש דיוק —
+       להכפיל באחוז המעבר ההיסטורי של אותה הסמכה.<br>
+     ⚠️ <b>"נסגר הרבעון" דורש שמירת היסטוריה שלא קיימת היום.</b> נדרשת
+     <code>certification_gap_snapshots</code> או ספירה מ-<code>status_history</code> לפי
+     <code>changed_at</code>. אם זה נדחה לפאזה הבאה — <b>להסתיר את הכרטיס</b>, לא להציג 0.`;
+}
+
+/* ---------- ווידג'ט ---------- */
+function squares(g){
+  const req = reqOf(g), s = surplusOf(g);
+  let html = '';
+  const shown = Math.min(req, 60);
+  for (let i = 0; i < shown; i++) html += `<b class="${i < g.held ? 'on' : 'off'}"></b>`;
+  for (let i = 0; i < Math.min(s, 10); i++) html += '<b class="extra"></b>';
+  if (req > 60) html += `<span class="footnote" style="margin-inline-start:.3rem">+${req-60}</span>`;
+  return `<div class="sq">${html}</div>`;
+}
+function widget(g, fam){
+  const req = reqOf(g), gp = gapOf(g), s = surplusOf(g);
+  let cls = 'gw', badge;
+  if (s > 0)        { cls += ' surplus';  badge = `עודף +${s}`; }
+  else if (gp === 0){ cls += ' balanced'; badge = 'מאוזן'; }
+  else              { if (gp >= 10) cls += ' crit'; badge = `פער ${gp}`; }
+  if (openKey === g.id) cls += ' sel';
+  return `
+  <div class="${cls}" style="--gc-ink:${fam.ink};--gc-line:${fam.line};--gc-bg:${fam.bg}" data-gap="${g.id}">
+    <div class="gwtop">
+      <div><div class="gwname">${g.name}</div><div class="gwsrc">${SRC_NAME[g.src]}</div></div>
+      <span class="gwgap">${badge}</span>
+    </div>
+    ${squares(g)}
+    <div class="gwnum"><span class="big">${g.held}</span><span class="of">מתוך ${req} נדרשים</span></div>
+    <div class="gwbd"><b>מפתח:</b> ${keyText(g)}</div>
+    <div class="gwact">
+      <button class="btn xs" data-key="${g.id}">⚙ מפתח חישוב</button>
+      ${gp > 0 ? '<button class="btn xs primary">שבץ שמות</button>' : '<button class="btn xs">פירוט</button>'}
+    </div>
+  </div>`;
+}
+
+/* ---------- עורך מפתח החישוב ---------- */
+let openKey = null;
+function keyPanel(g){
+  const locked = g.src === 'est';        /* מבנה וארגון לקרב — נגזר מ"שניים לפנים", לא בר שינוי */
+  const rows = g.keys[g.src].map(([q,u],i) => {
+    const un = unitOf(u);
+    return locked
+      ? `<div class="krow ro">
+          <span class="kq">${q}</span>
+          <span class="klbl">לכל</span>
+          <span class="kunit">${un.name}</span>
+          <span class="kmul">× <b>${un.n}</b> במבנה</span>
+          <span class="ksum">= ${q*un.n}</span>
+          <span class="klk" title="נגזר מטבלת התקנים">🔒</span>
+        </div>`
+      : `<div class="krow">
+          <input type="number" min="0" value="${q}" data-kq="${i}">
+          <span class="klbl">לכל</span>
+          <select data-ku="${i}">${UNITS.map(x =>
+            `<option value="${x.id}"${x.id===u?' selected':''}>${x.name}</option>`).join('')}</select>
+          <span class="kmul">× <b>${un.n}</b> במבנה</span>
+          <span class="ksum">= ${q*un.n}</span>
+          <button class="del" data-kdel="${i}">✕</button>
+        </div>`;
+  }).join('');
+  const req = reqOf(g), gp = gapOf(g), s = surplusOf(g);
+  return `<div class="keypanel${locked?' locked':''}">
+    <div class="khead">
+      <div>
+        <h3>מפתח חישוב · ${g.name}</h3>
+        <div class="fmeta">מספר היחידות נלקח אוטומטית מ״שניים לפנים״ בשני המקורות.</div>
+      </div>
+      <button class="btn xs" data-kclose="1">סגור</button>
+    </div>
+
+    <div class="ksrc">
+      <span class="klbl">מקור הדרישה:</span>
+      ${['est','ops'].map(sx => `<button class="btn xs${g.src===sx?' primary':''}"
+        data-ksrc="${sx}">${sx==='est'?'🔒 ':''}${SRC_NAME[sx]}<span class="ksrcn">${keyTotal(g.keys[sx])}</span></button>`).join('')}
+      ${keyTotal(g.keys.est) !== keyTotal(g.keys.ops)
+        ? `<span class="badge warn" style="font-size:.66rem">שני המקורות נותנים מספרים שונים —
+           ${keyTotal(g.keys.est)} מול ${keyTotal(g.keys.ops)}</span>` : ''}
+    </div>
+
+    ${locked ? `<div class="lockbar">🔒 <b>מבנה וארגון לקרב אינו בר שינוי.</b>
+      המפתח נגזר מטבלת התקנים של "שניים לפנים" — אותה טבלת ייחוס שהוגדרה באפליקציית Google.
+      כדי לשנות את הדרישה כאן צריך לשנות את המבנה, לא את הפער.
+      <button class="btn xs" style="margin-inline-start:.4rem">פתח את "שניים לפנים"</button></div>` : ''}
+
+    <div class="ktable">
+      <div class="krow khdr"><span>כמות</span><span></span><span>יחידה</span><span>במבנה</span><span>סה"כ</span><span></span></div>
+      ${rows}
+      ${locked ? '' : '<button class="btn xs" data-kadd="1" style="margin-top:.4rem">+ הוסף שורה</button>'}
+    </div>
+
+    <div class="ktotals">
+      <span class="kt"><small>נדרש</small><b>${req}</b></span>
+      <span class="kop">−</span>
+      <span class="kt"><small>מוסמכים · מ״שניים לפנים״</small><b>${g.held}</b></span>
+      <span class="kop">=</span>
+      <span class="kt ${s>0?'good':gp?'bad':'good'}"><small>${s>0?'עודף':'פער'}</small><b>${s>0?'+'+s:gp}</b></span>
+      <span style="margin-inline-start:auto" class="row">
+        ${locked
+          ? '<span class="badge" style="font-size:.68rem">קריאה בלבד</span>'
+          : '<button class="btn xs primary">שמור מפתח</button><button class="btn xs" data-kreset="1">אפס לברירת מחדל</button>'}
+      </span>
+    </div>
+
+    <div class="note" style="margin-top:.6rem"><b>שני מקורות דרישה — אחד נעול ואחד ניתן לעריכה:</b><br>
+      • <b>מבנה וארגון לקרב 🔒</b> — <b>קבוע, לא בר שינוי מהמסך הזה.</b> נגזר מטבלת התקנים של
+      "שניים לפנים", לפי המפתח שהוגדר באפליקציית Google. בפועל:
+      <code>COUNT(roles WHERE req1 = ? OR req2 = ?)</code> מקובץ לפי סוג יחידה.
+      זהו המשך ישיר של האינווריאנט המרכזי — <code>roles</code> הם נתוני ייחוס סטטיים, ולכן גם כל
+      דרישה שנגזרת מהם אינה ניתנת לעריכה כאן. שינוי מחייב תיקון המבנה או נתיב seeding.<br>
+      • <b>צורך מבצעי</b> — <b>ניתן לעריכה ידנית.</b> זו החלטה של הגדוד ולא נתון מבני, ולכן כאן
+      המפתח נערך: כמות, סוג יחידה, הוספת ומחיקת שורות.<br>
+      <b>בשני המקורות</b> מספר היחידות (<b>${UNITS.filter(u=>u.n>1).map(u=>u.name+'='+u.n).join(', ')}</b>)
+      נספר אוטומטית מ-<code>roles</code> ולא מוקלד. "2 לכל פלוגה" בגדוד עם 4 פלוגות ⇒ נדרש 8.
+      אם נפתחת פלוגה רביעית, שתי הדרישות מתעדכנות לבד.<br>
+      <b>held אינו ניתן לעריכה</b> — ספירת <code>soldier_certifications</code> מצטלבת עם
+      <code>role_assignments</code> של הגדוד.<br>
+      <b>סכמה:</b> <code>gap_requirement_keys (id, gap_row_id, battalion_id, source, qty, unit_type, sort_order)</code>.
+      שורות <code>source='establishment'</code> נכתבות <b>רק</b> ע"י אותו נתיב seeding שכותב
+      <code>roles</code> — אין endpoint שמאפשר עריכה שלהן.
+      <code>certification_gap_rows.active_source</code> לבחירת המקור הפעיל.
+      <code>gap_count</code> ו-<code>required_count</code> נגזרים — view, לא שדות שמוזנים.</div>
+  </div>`;
+}
+
+/* ---------- רינדור ---------- */
+function renderGaps(){
+  renderGapKpis();
+  const root = document.getElementById('gapsroot');
+  root.innerHTML = FAMILIES.filter(f => active.has(f.id)).map(fam => {
+    const rows = GAPS.filter(g => g.fam === fam.id).sort((a,b) => gapOf(b) - gapOf(a));
+    const tot = rows.reduce((s,g) => s + gapOf(g), 0);
+    return `
+    <div>
+      <div class="fam-head">
+        <span class="swatch" style="background:${fam.ink}"></span>
+        <h2 style="color:${fam.ink}">${fam.name}</h2>
+        <span class="cnt">${rows.length} הסמכות · פער מצטבר ${tot}</span>
+      </div>
+      <div class="gapgrid">${rows.map(g => widget(g, fam)).join('')}</div>
+      ${rows.some(g => g.id === openKey) ? keyPanel(GAPS[openKey]) : ''}
+    </div>`;
+  }).join('');
+  renderChips();
+}
+
+const active = new Set(FAMILIES.map(f => f.id));
+function renderChips(){
+  document.getElementById('famchips').innerHTML = FAMILIES.map(f => {
+    const tot = GAPS.filter(g => g.fam === f.id).reduce((s,g) => s + gapOf(g), 0);
+    return `<button class="fchip${active.has(f.id)?' active':''}" aria-pressed="${active.has(f.id)}"
+      data-fam="${f.id}"><span class="sw" style="background:${f.ink}"></span>${f.name}
+      <b style="color:${f.ink}">${tot}</b></button>`;
+  }).join('');
+}
+document.getElementById('famchips').addEventListener('click', e => {
+  const b = e.target.closest('.fchip'); if (!b) return;
+  active.has(b.dataset.fam) ? active.delete(b.dataset.fam) : active.add(b.dataset.fam);
+  renderGaps();
+});
+
+document.getElementById('gapsroot').addEventListener('click', e => {
+  const kb = e.target.closest('[data-key]');
+  if (kb){ openKey = openKey === +kb.dataset.key ? null : +kb.dataset.key; return renderGaps(); }
+  if (e.target.closest('[data-kclose]')){ openKey = null; return renderGaps(); }
+  const sb = e.target.closest('[data-ksrc]');
+  if (sb && openKey !== null){ GAPS[openKey].src = sb.dataset.ksrc; return renderGaps(); }
+  /* מבנה וארגון לקרב נעול — אין נתיב עריכה כלל */
+  if (openKey !== null && GAPS[openKey].src === 'est') return;
+  const del = e.target.closest('[data-kdel]');
+  if (del && openKey !== null){
+    const g = GAPS[openKey];
+    if (g.keys[g.src].length > 1) g.keys[g.src].splice(+del.dataset.kdel, 1);
+    return renderGaps();
+  }
+  if (e.target.closest('[data-kadd]') && openKey !== null){
+    GAPS[openKey].keys[GAPS[openKey].src].push([1,'team']); return renderGaps();
+  }
+  if (e.target.closest('.btn')) return;
+  const w = e.target.closest('[data-gap]');
+  if (w){
+    const d = document.querySelector('#screen-gaps details.gapdetail');
+    if (d){ d.open = true; d.scrollIntoView({ behavior:'smooth', block:'center' }); }
+  }
+});
+document.getElementById('gapsroot').addEventListener('change', e => {
+  if (openKey === null) return;
+  const g = GAPS[openKey];
+  if (g.src === 'est') return;                 /* נעול */
+  const q = e.target.closest('[data-kq]'), u = e.target.closest('[data-ku]');
+  if (q) g.keys[g.src][+q.dataset.kq][0] = Math.max(0, +q.value || 0);
+  if (u) g.keys[g.src][+u.dataset.ku][1] = u.value;
+  if (q || u) renderGaps();
+});
+renderGaps();
+
+
+
+
+/* ============================================================
+   נתוני לוח השנה של גדוד 6228
+   רק הסמכות שיש להן certification_battalion_quotas לגדוד המחובר,
+   בתוספת גורמים משפיעים (נתיב ראשון, מסגרת מקווקוות).
+   ============================================================ */
+const CAL = [
+  { id:1, name:'נהיגה מבצעית', cycle:'מחזור 3', loc:'מתקן אדם', start:'2026-08-23', end:'2026-08-27', alloc:5, filled:3, color:'#b0541f' },
+  { id:2, name:'נגב 7',        cycle:'מחזור 2', loc:'אליקים',   start:'2026-08-30', end:'2026-09-03', alloc:4, filled:1, color:'#3b3bb0' },
+  { id:3, name:'איבו',         cycle:'מחזור 9', loc:'בה"ד 8',   start:'2026-09-02', end:'2026-09-06', alloc:8, filled:4, color:'#8f8f1f' },
+  { id:4, name:'חובש',         cycle:'מחזור 4', loc:'בה"ד 10',  start:'2026-09-06', end:'2026-09-17', alloc:3, filled:2, color:'#a52a2a' },
+  { id:5, name:'ציין אורין',   cycle:'מחזור 1', loc:'בה"ד 8',   start:'2026-09-07', end:'2026-09-10', alloc:6, filled:0, color:'#b12fb1' },
+  { id:6, name:'מטול צד',      cycle:'מחזור 5', loc:'אליקים',   start:'2026-09-13', end:'2026-09-17', alloc:3, filled:2, color:'#2f6fb1' },
+  { id:7, name:'ציד 750',      cycle:'מחזור 2', loc:'מתקן אדם', start:'2026-09-14', end:'2026-09-18', alloc:2, filled:0, color:'#6d28d9' },
+  { id:8, name:'רחפן אלפא',    cycle:'יום מרוכז', loc:'אליקים', start:'2026-09-15', end:'2026-09-15', alloc:2, filled:2, color:'#16a34a' },
+  { id:9, name:'האמר מנהלה',   cycle:'יום מרוכז', loc:'מתקן אדם',start:'2026-09-16', end:'2026-09-16', alloc:6, filled:4, color:'#1d4ed8' },
+  { id:10,name:'מט"ב',         cycle:'יום מרוכז', loc:'בה"ד 10', start:'2026-09-17', end:'2026-09-17', alloc:1, filled:0, color:'#0f766e' },
+];
+const FACTORS = [
+  { id:'f1', name:'תרגיל מסגרות חטיבתי', loc:'שטח אימונים', start:'2026-09-13', end:'2026-09-18', color:'#6b7280' },
+];
+const BN_COLOR = '#80286C';                        // גדוד 6228
+const TODAY = '2026-08-17';
+const HEBD = ["א'","ב'","ג'","ד'","ה'","ו'","שבת"];
+const MONTHS = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+
+const D = s => new Date(s + 'T00:00:00');
+const iso = d => d.toISOString().slice(0,10);
+const addD = (d,n) => new Date(d.getTime() + n*86400000);
+const sunOf = d => addD(d, -d.getDay());
+const sameDay = (a,b) => iso(a) === iso(b);
+function weekNo(d){
+  const jan1 = new Date(d.getFullYear(),0,1);
+  return Math.ceil((((d - jan1)/86400000) + jan1.getDay() + 1) / 7);
+}
+const fillState = c => c.filled >= c.alloc ? 'full' : (c.filled === 0 ? 'none' : 'part');
+const FILL_DOT = { full:'#16a34a', part:'#e08a1e', none:'#dc2626' };
+
+/* assignLanes — נמל מ-month-view.tsx: נתיב יציב לכל טווח כדי שלא יקפוץ שורה */
+function assignLanes(spans){
+  const sorted = [...spans].sort((a,b) => a.start.localeCompare(b.start));
+  const laneEnds = [], laneOf = new Map();
+  for (const s of sorted){
+    let lane = laneEnds.findIndex(e => e < s.start);
+    if (lane === -1){ lane = laneEnds.length; laneEnds.push(s.end); }
+    else laneEnds[lane] = s.end;
+    laneOf.set(s.key, lane);
+  }
+  return laneOf;
+}
+
+let weekStart = sunOf(D('2026-09-14'));
+
+function renderWeek(){
+  const host = document.getElementById('weekcal');
+  if (!host) return;
+  const days = Array.from({length:7}, (_,i) => addD(weekStart,i));
+  const wEnd = days[6];
+
+  const factorSpans = FACTORS.map(f => ({ key:'f'+f.id, kind:'factor', item:f, start:f.start, end:f.end }));
+  /* כל ההסמכות הן בָּרים — גם חד-יומיות (בָּר ברוחב עמודה אחת).
+     החיילים שלהן מופיעים בנוסף בשורה 2, ביום הפתיחה. */
+  const multi = CAL.map(c => ({ key:'c'+c.id, kind:'cert', item:c, start:c.start, end:c.end }));
+
+  const fLane = assignLanes(factorSpans);
+  const fCount = factorSpans.length ? Math.max(...fLane.values()) + 1 : 0;
+  const cLane = assignLanes(multi);
+  const laneOf = new Map();
+  fLane.forEach((v,k) => laneOf.set(k,v));
+  cLane.forEach((v,k) => laneOf.set(k, v + fCount));
+
+  const bars = [...factorSpans, ...multi].map(s => {
+    const s0 = D(s.start), s1 = D(s.end);
+    if (s1 < weekStart || s0 > wEnd) return null;
+    const a = s0 > weekStart ? s0 : weekStart;
+    const b = s1 < wEnd ? s1 : wEnd;
+    return { s, from:Math.round((a-weekStart)/86400000), to:Math.round((b-weekStart)/86400000),
+             lane:laneOf.get(s.key) ?? 0, clipStart:s0 < weekStart, clipEnd:s1 > wEnd };
+  }).filter(Boolean);
+
+  const laneCount = bars.length ? Math.max(...bars.map(b => b.lane)) + 1 : 0;
+  const spacer = laneCount * 22;
+
+  document.getElementById('wkTitle').textContent =
+    `${days[0].getDate()}–${wEnd.getDate()} ב${MONTHS[wEnd.getMonth()]} ${wEnd.getFullYear()} · שבוע ${weekNo(weekStart)}`;
+
+  /* ---- שורה 2: קבוצת שמות ליום — כל הסמכה שמתחילה ביום הזה ---- */
+  function groupsFor(d){
+    const g = CAL.filter(c => sameDay(D(c.start), d)).map(c => {
+      const names = NAMES[c.id] || [];
+      const boxes = Array.from({length:c.alloc}, (_,i) => {
+        const nm = names[i];
+        return nm
+          ? `<div class="nmbox" style="background:${c.color}" title="${nm}">${nm.split(' · ')[0]}</div>`
+          : `<div class="nmbox empty" style="color:${c.color}" title="מקום שהוקצה וטרם שובץ">מקום פנוי</div>`;
+      }).join('');
+      return `<div class="wk-grp" data-cert="${c.id}" style="cursor:pointer">
+        <div class="gh" style="color:${c.color}">
+          <span>${c.name}</span><span class="gcount">${names.length}/${c.alloc}</span></div>
+        ${boxes}</div>`;
+    }).join('');
+    return g || '<span class="none">—</span>';
+  }
+
+  let html = '<div class="wk-grid">';
+  html += '<div class="wk-hd wnum">שבוע</div>' + HEBD.map(d => `<div class="wk-hd">${d}</div>`).join('');
+
+  /* ===== שורה 1 — הלוח עצמו ===== */
+  html += `<div class="wk-wknum">${weekNo(weekStart)}</div>`;
+  html += '<div class="wk-daysbox"><div class="wk-days">';
+  html += days.map(d => {
+    const we = d.getDay() === 5 || d.getDay() === 6;
+    const today = sameDay(d, D(TODAY));
+    return `<div class="wk-cell${we?' we':''}${today?' today':''}"
+      style="min-height:${20 + Math.max(laneCount,1)*22 + 6}px">
+      <div class="wk-dnum">${d.getDate()}</div></div>`;
+  }).join('');
+  html += '</div>';
+
+  html += `<div class="wk-lanes" style="grid-template-rows:repeat(${Math.max(laneCount,1)},22px)">`;
+  html += bars.map(b => {
+    const it = b.s.item, isF = b.s.kind === 'factor';
+    const st = isF ? null : fillState(it);
+    const dots = isF
+      ? `<i style="background:#e5e7eb"></i>`
+      : `<i style="background:${FILL_DOT[st]}"></i><i style="background:${BN_COLOR}"></i>`;
+    const frac = isF ? '' : ` <span class="loc">${it.filled}/${it.alloc}</span>`;
+    const oneDay = !isF && it.start === it.end;
+    return `<div class="wk-bar${isF?' dashed':''}${oneDay?' oneday':''}${b.clipStart?' clipR':''}${b.clipEnd?' clipL':''}"
+      style="grid-column:${b.from+1} / span ${b.to-b.from+1};grid-row:${b.lane+1};background:${it.color}"
+      ${isF?'':`data-cert="${it.id}"`}
+      title="${it.name}${isF?'':' · '+it.filled+'/'+it.alloc+' מולאו'}">
+      <span class="wk-dots">${dots}</span>
+      <span class="wk-lbl"><b>${it.name}</b><span class="loc"> - ${it.loc}</span>${frac}</span></div>`;
+  }).join('');
+  html += '</div></div>';
+
+  /* ===== חציצה + שורה 2 — השמות ===== */
+  html += '<div class="wk-sep"></div>';
+  html += '<div class="wk-bandlbl">יוצאים<br>להסמכה</div>';
+  html += '<div class="wk-band">';
+  html += days.map(d => {
+    const we = d.getDay() === 5 || d.getDay() === 6;
+    const today = sameDay(d, D(TODAY));
+    return `<div class="wk-namecell${we?' we':''}${today?' today':''}">${groupsFor(d)}</div>`;
+  }).join('');
+  html += '</div></div>';
+
+  const anyStart = days.some(d => CAL.some(c => sameDay(D(c.start), d)));
+  if (bars.length === 0 && !anyStart)
+    html += '<p class="sub" style="text-align:center;padding:.6rem 0">אין הסמכות עם הקצאה לגדוד בשבוע זה.</p>';
+  host.innerHTML = html;
+}
+
+function step(n){ weekStart = addD(weekStart, n*7); renderWeek(); }
+document.getElementById('wkPrev').addEventListener('click', () => step(-1));
+document.getElementById('wkNext').addEventListener('click', () => step(1));
+document.getElementById('wkToday').addEventListener('click', () => { weekStart = sunOf(D(TODAY)); renderWeek(); });
+document.getElementById('wkJump').addEventListener('change', e => {
+  if (e.target.value){ weekStart = sunOf(D(e.target.value)); renderWeek(); }
+});
+/* לחיצה על בָּר או chip -> פותחת את מילוי ההקצאה של אותה הסמכה */
+document.getElementById('weekcal').addEventListener('click', e => {
+  const el = e.target.closest('[data-cert]');
+  if (!el) return;
+  openAlloc(Number(el.dataset.cert), true);
+});
+
+
+/* ============================================================
+   ריבוע ההקצאות + מילוי שמות ישירות בתוך ההסמכה
+   ============================================================ */
+const NAMES = {
+  1:['אלישי לוי · 9412008','רועי סב לזונו · 9430117','עמיחי קליינברג · 9466201'],
+  2:['אורי נחום · 9488120'],
+  3:['עומר קבלו · 9481077','נדב אפללו · 9502771','שהם סנגאונים · 9455180','רועי עמיר · 9401255'],
+  4:['דניאל אנבר · 9491330','עדן סולומון · 9502288'],
+  5:[], 6:['אילון פודולסקי · 9477310','עומר קבלו · 9481077'], 7:[],
+  8:['אלישי לוי · 9412008','נדב אפללו · 9502771'],
+  9:['רועי עמיר · 9401255','שהם סנגאונים · 9455180','עדן סולומון · 9502288','אורי נחום · 9488120'],
+  10:[],
+};
+const DAYS_LEFT = {1:11, 2:9, 3:3, 4:24, 5:2, 6:14, 7:20, 8:12, 9:13, 10:14};
+let openId = null;
+
+const openCerts = () => CAL.filter(c => (NAMES[c.id]||[]).length < c.alloc)
+  .sort((a,b) => (DAYS_LEFT[a.id]-DAYS_LEFT[b.id]) || ((b.alloc-(NAMES[b.id]||[]).length)-(a.alloc-(NAMES[a.id]||[]).length)));
+
+function renderTiles(){
+  const rows = openCerts();
+  const open = rows.reduce((s,c) => s + c.alloc - (NAMES[c.id]||[]).length, 0);
+  document.getElementById('allocSummary').textContent =
+    `${rows.length} הסמכות · ${open} מקומות פנויים`;
+  document.getElementById('allocTiles').innerHTML = rows.map(c => {
+    const f = (NAMES[c.id]||[]).length, left = c.alloc - f, dl = DAYS_LEFT[c.id];
+    const urg = dl <= 5 ? 'hot' : dl <= 12 ? 'warm' : 'cool';
+    const sq = Array.from({length:c.alloc}, (_,i) => `<b class="${i<f?'on':'off'}"></b>`).join('');
+    const [dd,mm] = [c.start.slice(8,10), c.start.slice(5,7)];
+    return `<button class="atile${dl<=5?' urgent':''}${openId===c.id?' sel':''}" data-tile="${c.id}">
+      <span class="arow1">
+        <span><span class="an">${c.name}</span><span class="ameta">${c.cycle} · ${dd}/${mm} · ${c.loc}</span></span>
+        <span class="aurg ${urg}">${dl} ימים</span>
+      </span>
+      <span class="asq">${sq}</span>
+      <span class="afoot">
+        <span class="af">${f}/${c.alloc} מולאו · חסרים ${left}</span>
+        <span class="acta">${openId===c.id?'סגור ▲':'מלא שמות ▾'}</span>
+      </span></button>`;
+  }).join('');
+  document.getElementById('allocPanel').innerHTML = openId ? fillPanel(openId) : '';
+}
+
+/* ============================================================
+   רישום חיילים להסמכה — בפורמט "הוספת חייל" הקיים
+   ------------------------------------------------------------
+   החיפוש מקבל שם מלא או מספר אישי. התאמה מביאה את החייל
+   מ"שניים לפנים" וממלאת אוטומטית מסגרת, טלפון ופרטי מפקד.
+   ============================================================ */
+
+/* בפרודקשן: JOIN של role_assignments + roles + companies + soldier_certifications */
+const SOLDIERS = [
+  { pn:'9401255', name:'רועי עמיר',      frame:'מפקדת מחלקה · תקן 42 · מ"מ',        phone:'050-2340011', cmdr:'רס"ן ד. אלון',   cmdrPhone:'052-8890123', certs:['מ"מ'] },
+  { pn:'9455180', name:'שהם סנגאונים',   frame:'מפקדת מחלקה · תקן 43 · סמל',        phone:'050-7781234', cmdr:'סג"ם ר. עמיר',   cmdrPhone:'050-2340011', certs:['לוחם','חבלן'] },
+  { pn:'9502288', name:'עדן סולומון',    frame:'מפקדת מחלקה · תקן 44 · תצפיתן',     phone:'054-3320988', cmdr:'סג"ם ר. עמיר',   cmdrPhone:'050-2340011', certs:['לוחם','טילן'] },
+  { pn:'9491330', name:'דניאל אמבר',     frame:'מפקדת מחלקה · תקן 45 · חובש',       phone:'053-8812004', cmdr:'סג"ם ר. עמיר',   cmdrPhone:'050-2340011', certs:['חובש'] },
+  { pn:'9481077', name:'עומר קבלו',      frame:"כיתה א' · חוליה א' · תקן 46 · מ\"כ", phone:'050-6672310', cmdr:'סג"ם ר. עמיר',   cmdrPhone:'050-2340011', certs:['מ"כ','חבלן','רחפן אלפא'] },
+  { pn:'9412008', name:'אלישי לוי',      frame:"כיתה א' · חוליה א' · תקן 47 · קלע",  phone:'052-4419007', cmdr:'סמל ע. קבלו',    cmdrPhone:'050-6672310', certs:['קלע 5.56','מטול'] },
+  { pn:'9477310', name:'אילון פודולסקי', frame:"כיתה א' · חוליה א' · תקן 48 · חבלן", phone:'058-2210443', cmdr:'סמל ע. קבלו',    cmdrPhone:'050-6672310', certs:['טיפ'] },
+  { pn:'9430117', name:'רועי סב לזונו',  frame:"כיתה א' · חוליה ב' · תקן 50 · מטול", phone:'050-9987221', cmdr:'סמל ע. קבלו',    cmdrPhone:'050-6672310', certs:['מטול'] },
+  { pn:'9466201', name:'עמיחי קליינברג', frame:"כיתה א' · חוליה ב' · תקן 51 · מקלען",phone:'054-7712009', cmdr:'סמל ע. קבלו',    cmdrPhone:'050-6672310', certs:['נגב 7.62'] },
+  { pn:'9502771', name:'נדב אפללו',      frame:"כיתה א' · חוליה ב' · תקן 52 · טילן", phone:'053-3312880', cmdr:'סמל ע. קבלו',    cmdrPhone:'050-6672310', certs:['טילן'] },
+  { pn:'9488120', name:'אורי נחום',      frame:"כיתה ב' · תקן 115 · מא\"גיסט",       phone:'050-1120344', cmdr:'סמל ט. ברק',     cmdrPhone:'052-6650912', certs:['הסמכת מא"ג'] },
+  { pn:'9510442', name:'יובל רומנו',     frame:'בנק כ"א · מחלקת חבלה · לא משובץ',   phone:'058-9903112', cmdr:'סג"ם ר. עמיר',   cmdrPhone:'050-2340011', certs:['מ"כ','חבלן'] },
+];
+const byKey = v => {
+  const t = (v || '').trim();
+  if (!t) return null;
+  return SOLDIERS.find(s => s.pn === t || s.name === t || t === `${s.name} · ${s.pn}`) || null;
+};
+
+/* ROWS[certId] = [{ q, sol, free, prior, reserve, note }]  — q = מה שהוקלד בשדה */
+const ROWS = {};
+function rowsOf(id){
+  const c = CAL.find(x => x.id === id);
+  if (!ROWS[id]){
+    ROWS[id] = (NAMES[id] || []).map(n => {
+      const sol = byKey(n) || byKey(n.split(' · ')[0]);
+      return { q: sol ? `${sol.name} · ${sol.pn}` : n, sol, free: !sol, prior:false, reserve:false, note:'' };
+    });
+  }
+  while (ROWS[id].filter(r => !r.reserve).length < c.alloc)
+    ROWS[id].splice(ROWS[id].filter(r => !r.reserve).length, 0,
+      { q:'', sol:null, free:false, prior:false, reserve:false, note:'' });
+  return ROWS[id];
+}
+const filledCount = id => rowsOf(id).filter(r => !r.reserve && r.q.trim()).length;
+let expanded = null;                        /* אינדקס השורה הפתוחה */
+
+function fld(label, value, auto, ph){
+  return `<label class="ff"><span>${label}${auto?' <i class="fromfs">מ״שניים לפנים״</i>':''}</span>
+    <input value="${value || ''}" placeholder="${ph || ''}"${auto?' class="auto"':''}></label>`;
+}
+function slotForm(id, i){
+  const r = rowsOf(id)[i], s = r.sol;
+  return `<div class="sform">
+    <label class="ff full"><span>גדוד</span>
+      <select disabled><option>גדוד 6228</option></select></label>
+    ${fld('שם מלא', s ? s.name : '', !!s, 'שם מלא')}
+    ${fld('מספר אישי', s ? s.pn : '', !!s, 'מספר אישי')}
+    ${fld('פלוגה / מסגרת', s ? s.frame : '', !!s, 'פלוגה / מסגרת')}
+    ${fld('טלפון', s ? s.phone : '', !!s, 'טלפון')}
+    ${fld('שם המפקד', s ? s.cmdr : '', !!s, 'שם המפקד')}
+    ${fld('טלפון המפקד', s ? s.cmdrPhone : '', !!s, 'טלפון המפקד')}
+    <label class="cbx full"><input type="checkbox" ${r.prior?'checked':''} data-prior="${i}">
+      קיימת הסמכה קודמת בתחום
+      ${s && s.certs.length ? `<span class="footnote">· רשומות במבנה: ${s.certs.join(', ')}</span>` : ''}</label>
+    <label class="cbx full warn"><input type="checkbox" ${r.reserve?'checked':''} data-resv="${i}">
+      רישום כעתודה (מחוץ למכסת ההקצאות)</label>
+    <label class="ff full"><span>הערות</span><textarea rows="2">${r.note || ''}</textarea></label>
+    ${!s && r.q.trim() ? `<div class="note" style="grid-column:1/-1;display:block">
+      <b>אין התאמה במבנה.</b> החייל לא נמצא ב-<code>role_assignments</code> ולא ב-<code>bank_soldiers</code>
+      של הגדוד. השדות נשארים לגמרי ידניים, והרישום מסומן כ<b>הזנה חופשית</b>.
+      <b>לא ליצור חייל אוטומטית ב"שניים לפנים"</b> — הכיוון חד-כיווני.</div>` : ''}
+  </div>`;
+}
+function slotRow(id, i){
+  const r = rowsOf(id)[i], s = r.sol, on = r.q.trim();
+  const badge = s ? `<span class="badge info" style="font-size:.63rem">${s.frame.split(' · ').slice(0,2).join(' · ')}</span>`
+              : on ? '<span class="badge warn" style="font-size:.63rem">הזנה חופשית</span>'
+              : '<span class="footnote">—</span>';
+  return `<div class="srow${on?' done':''}${r.reserve?' resv':''}">
+    <span class="sn">${on ? '✓' : (r.reserve ? '★' : i+1)}</span>
+    <input list="soldierlist" value="${r.q}" data-q="${i}"
+      placeholder="שם מלא או מספר אישי…">
+    <span class="src">${badge}</span>
+    <button class="exp" data-exp="${i}" title="פרטי הרישום">${expanded===i?'▴':'▾'} פרטים</button>
+    <button class="del" data-clear="${i}">${on?'✕':''}</button>
+  </div>${expanded===i ? slotForm(id,i) : ''}`;
+}
+
+function fillPanel(id){
+  const c = CAL.find(x => x.id === id);
+  const rows = rowsOf(id);
+  const quota = rows.map((r,i)=>({r,i})).filter(x => !x.r.reserve);
+  const resv  = rows.map((r,i)=>({r,i})).filter(x =>  x.r.reserve);
+  const f = filledCount(id);
+  return `<div class="afill">
+    <div class="fhead">
+      <div>
+        <h3 style="color:${c.color}">${c.name} · ${c.cycle}</h3>
+        <div class="fmeta">${c.start.slice(8,10)}/${c.start.slice(5,7)}–${c.end.slice(8,10)}/${c.end.slice(5,7)}
+          · ${c.loc} · הוקצו ${c.alloc} מקומות · סגירת רישום בעוד ${DAYS_LEFT[c.id]} ימים</div>
+      </div>
+      <div class="row">
+        <button class="btn xs">פתח את ההסמכה במלואה</button>
+        <button class="btn xs" data-close="1">סגור</button>
+      </div>
+    </div>
+
+    <div class="slothdr"><span>מקום</span><span>חייל — שם מלא או מספר אישי</span><span>מסגרת</span><span></span></div>
+    ${quota.map(x => slotRow(id, x.i)).join('')}
+
+    <div class="resvbox">
+      <div class="spread" style="margin-bottom:.3rem">
+        <button class="btn xs" data-addresv="1">+ הוסף רישום עתודה</button>
+        <b style="font-size:.78rem;color:#8a5a10">עתודה — מחוץ למכסת ההקצאות</b>
+      </div>
+      ${resv.length ? resv.map(x => slotRow(id, x.i)).join('')
+                    : '<p class="footnote" style="text-align:center;padding:.3rem">אין רישומי עתודה.</p>'}
+    </div>
+
+    <div class="ffoot">
+      <span class="fprog" style="color:${f>=c.alloc?'#0f7a5c':'#c9791c'}">${f} מתוך ${c.alloc} מולאו${
+        resv.length?` · ${resv.filter(x=>x.r.q.trim()).length} עתודה`:''}</span>
+      <button class="btn primary" data-save="1">שמור ושלח לרישום</button>
+      <button class="btn">שמור כטיוטה</button>
+    </div>
+
+    <div class="note" style="margin-top:.6rem"><b>הרישום בפורמט "הוספת חייל" הקיים</b> —
+      אותם שדות ואותו endpoint. אין טופס חדש.<br>
+      <b>שדה החיפוש מקבל שם מלא או מספר אישי</b> — אותו שדה, לא שניים. השרת מנסה
+      <code>personal_number</code> ואז <code>full_name</code> ומחזיר את החייל מ"שניים לפנים"
+      (<code>role_assignments</code> ואם לא נמצא — <code>bank_soldiers</code>).
+      בפרודקשן זה combobox שמשאיל ל-API על שני השדות, לא <code>datalist</code> סטטי.<br>
+      <b>מה מתמלא אוטומטית מההתאמה:</b> פלוגה/מסגרת, טלפון, שם המפקד וטלפון המפקד — מתויגים
+      "מ״שניים לפנים״" ו<b>ניתנים לדריכה</b>, כי לפעמים המבנה לא מעודכן.
+      <b>מה לא מתמלא:</b> "קיימת הסמכה קודמת" — מוצגות לצידו ההסמכות הרשומות במבנה,
+      אבל הסימון נשאר ידני, כי הוא הצהרה של המפקד ולא נתון מהמערכת.<br>
+      <b>אין התאמה</b> ⇒ הרישום מסומן "הזנה חופשית", כל השדות ידניים, ו<b>לא נוצר חייל
+      ב"שניים לפנים"</b>. הכיוון חד-כיווני.<br>
+      <b>עתודה</b> — <code>roster_entries.is_reserve = 1</code>, השדה כבר קיים בסכמה.
+      <b>תיקון לכלל קודם:</b> רישומי עתודה <u>כן</u> חורגים מ-<code>allocated_slots</code> — הם בסקציה
+      נפרדת ולא נספרים במונה המכסה. הכלל "אין שורות מעל ההקצאה" חל על שורות המכסה בלבד.<br>
+      השמירה יוצרת <code>roster_entries</code> דרך endpoint הרוסטר הקיים.</div>
+  </div>`;
+}
+
+function openAlloc(id, force){
+  openId = (!force && openId === id) ? null : id;
+  renderTiles();
+  if (openId){
+    const el = document.querySelector('#allocPanel .afill');
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+}
+
+document.getElementById('allocTiles').addEventListener('click', e => {
+  const t = e.target.closest('[data-tile]');
+  if (t) openAlloc(Number(t.dataset.tile));
+});
+document.getElementById('allocPanel').addEventListener('click', e => {
+  if (e.target.closest('[data-close]') || e.target.closest('[data-save]')){ openId = null; expanded = null; return renderTiles(); }
+  if (!openId) return;
+  const ex = e.target.closest('[data-exp]');
+  if (ex){ const i = Number(ex.dataset.exp); expanded = expanded === i ? null : i; return renderTiles(); }
+  const clr = e.target.closest('[data-clear]');
+  if (clr){
+    const i = Number(clr.dataset.clear), rs = rowsOf(openId);
+    if (rs[i].reserve) rs.splice(i,1); else Object.assign(rs[i], { q:'', sol:null, free:false, prior:false, note:'' });
+    expanded = null; return sync(openId);
+  }
+  if (e.target.closest('[data-addresv]')){
+    rowsOf(openId).push({ q:'', sol:null, free:false, prior:false, reserve:true, note:'' });
+    expanded = rowsOf(openId).length - 1; return renderTiles();
+  }
+});
+document.getElementById('allocPanel').addEventListener('change', e => {
+  if (!openId) return;
+  const rs = rowsOf(openId);
+  const q = e.target.closest('[data-q]');
+  if (q){
+    const i = Number(q.dataset.q), v = q.value.trim();
+    const sol = byKey(v);
+    Object.assign(rs[i], { q: sol ? `${sol.name} · ${sol.pn}` : v, sol, free: !sol && !!v });
+    if (v && !sol) expanded = i;                 /* אין התאמה -> לפתוח למילוי ידני */
+    return sync(openId);
+  }
+  const pr = e.target.closest('[data-prior]');
+  if (pr){ rs[Number(pr.dataset.prior)].prior = pr.checked; return renderTiles(); }
+  const rv = e.target.closest('[data-resv]');
+  if (rv){ rs[Number(rv.dataset.resv)].reserve = rv.checked; expanded = null; return sync(openId); }
+});
+function sync(id){
+  NAMES[id] = rowsOf(id).filter(r => !r.reserve && r.q.trim()).map(r => r.q);
+  syncFilled(id); renderTiles();
+}
+function syncFilled(id){
+  const c = CAL.find(x => x.id === id);
+  if (c) c.filled = (NAMES[id] || []).length;
+  renderWeek();
+}
+
+/* ============================================================
+   משימות פתוחות — גרסה גדודית של OpenTasksBar
+   kind: doc = מסמך/אישור חסר | adm = אישור שלישותי | slot = הקצאה פתוחה | prq = דרישת מעבר
+   ============================================================ */
+const TASK_STYLE = {
+  doc:  { cls:'tk-doc',  ico:'📄' },
+  adm:  { cls:'tk-adm',  ico:'✓'  },
+  slot: { cls:'tk-slot', ico:'▢'  },
+  prq:  { cls:'tk-prq',  ico:'!'  },
+};
+const TASKS = [
+  { kind:'doc',  days:11, route:'/certifications/1?tab=roster&filter=missing-docs',
+    text:'הוספת <b>אישור רישיון נהיגה צבאי</b> ל-2 חיילים בהסמכת נהיגה מבצעית',
+    sub:'מחזור 3 · 23/08 · מסמך חובה לפני תחילת ההסמכה', cta:'לרוסטר ההסמכה' },
+  { kind:'adm',  days:3, route:'/certifications/3?tab=roster&filter=pending-admin',
+    text:'<b>אישור שלישותי</b> של 3 חיילים מהסמכת איבו',
+    sub:'סיימו 12/06 · ממתינים 66 יום · מעל התקן של 30 יום', cta:'לרוסטר ההסמכה' },
+  { kind:'slot', days:13, route:'/certifications/9?tab=roster&battalion=6228',
+    text:'השלמת <b>2 הקצאות פתוחות</b> לקורס האמר מנהלה',
+    sub:'יום מרוכז · 16/09 · מולאו 4 מתוך 6', cta:'לעמוד ההסמכה' },
+  { kind:'slot', days:2, route:'/certifications/5?tab=roster&battalion=6228',
+    text:'<b>6 מקומות פנויים</b> בהסמכת ציין אורין — לא שובץ אף חייל',
+    sub:'מחזור 1 · 07/09 · הרישום נסגר בעוד 2 ימים', cta:'לעמוד ההסמכה' },
+  { kind:'prq',  days:20, route:'/certifications/7?tab=roster&filter=prereq-unset',
+    text:'סימון <b>דרישות מעבר</b> ל-2 חיילים בהסמכת ציד 750',
+    sub:'כשירות רפואית ואישור מפקד פלוגה לא סומנו', cta:'לרוסטר ההסמכה' },
+];
+
+function renderTasks(){
+  const host = document.getElementById('tasklist');
+  if (!host) return;
+  const rows = [...TASKS].sort((a,b) => a.days - b.days);
+  document.getElementById('taskCount').textContent = rows.length + ' משימות';
+  host.innerHTML = rows.map(t => {
+    const s = TASK_STYLE[t.kind];
+    const urg = t.days <= 5 ? 'bad' : t.days <= 12 ? 'warn' : '';
+    return '<div class="taskrow">' +
+      '<span class="tico ' + s.cls + '">' + s.ico + '</span>' +
+      '<span class="ttxt">' + t.text + '<div class="tsub">' + t.sub + '</div></span>' +
+      (urg ? '<span class="badge ' + urg + '">' + t.days + ' ימים</span>' : '') +
+      '<span class="tcta"><button class="btn xs" title="' + t.route + '">' +
+        t.cta + ' \u2039</button></span>' +
+    '</div>';
+  }).join('');
+}
+/* אין פעולה מתוך שורת המשימות — כל שורה מנווטת לעמוד הרלוונטי.
+   אישור חיילים מחייב בדיקה שם-שם ברוסטר, ולכן אינו זמין מכאן. */
+
+/* ---- bootstrap: אחרי שכל בלוקי הנתונים אותחלו ---- */
+renderWeek();
+renderTiles();
+renderTasks();
+
+
+
+/* ============================================================
+   שניים לפנים — מבנה כוח ואיוש
+   roles      = נתוני ייחוס סטטיים. req לעולם לא משתנה מהמסך הזה.
+   ASSIGN     = שיבוץ: roleId -> חייל. זה הדבר היחיד שזז במצב עריכה.
+   BANK       = בנק 120%.
+   ============================================================ */
+const DEPTS = [
+  { id:'maflag', name:'מפל"ג' },
+  { id:'hod',    name:'מחלקת חוד' },
+  { id:'havala', name:'מחלקת חבלה' },
+  { id:'esh',    name:'מחלקת אש' },
+];
+
+/* dept · zone · team · serial · role · req[]   — req נעול (locked) */
+const ROLES = [
+  { id:42, dept:'havala', zone:'מפקדת מחלקה', team:null, serial:'42 · מ"מ',  role:'מ"מ',    req:['מ"מ'] },
+  { id:43, dept:'havala', zone:'מפקדת מחלקה', team:null, serial:'43',        role:'סמל',    req:['לוחם','חבלן'] },
+  { id:44, dept:'havala', zone:'מפקדת מחלקה', team:null, serial:'44',        role:'תצפיתן', req:['לוחם','טילן'] },
+  { id:45, dept:'havala', zone:'מפקדת מחלקה', team:null, serial:'45 · חובש', role:'חובש',   req:['חובש'] },
+
+  { id:46, dept:'havala', zone:"כיתה א' מסתערת", team:"חוליה א'", serial:'46 · מ"כ',   role:'מ"כ',                 req:['מ"כ','חבלן'] },
+  { id:47, dept:'havala', zone:"כיתה א' מסתערת", team:"חוליה א'", serial:'47 · קלע',   role:'קלע',                 req:['קלע 5.56','מטול'] },
+  { id:48, dept:'havala', zone:"כיתה א' מסתערת", team:"חוליה א'", serial:'48 · חבלן',  role:'חבלן · פריצה קרה',    req:['חבלן'] },
+  { id:49, dept:'havala', zone:"כיתה א' מסתערת", team:"חוליה א'", serial:'49 · חבלן',  role:'חבלן · פריצה חמה',    req:['חבלן'] },
+
+  { id:50, dept:'havala', zone:"כיתה א' מסתערת", team:"חוליה ב'", serial:'50 · מטול',  role:'מ"חן מטול',           req:['מטול'] },
+  { id:51, dept:'havala', zone:"כיתה א' מסתערת", team:"חוליה ב'", serial:'51',         role:'מקלען קל · נגב',      req:['קלע 5.56 / נגב 7.62'] },
+  { id:52, dept:'havala', zone:"כיתה א' מסתערת", team:"חוליה ב'", serial:'52 · טילן',  role:'טילן כתף · רחפן',     req:['טילן','רחפן'] },
+  { id:53, dept:'havala', zone:"כיתה א' מסתערת", team:"חוליה ב'", serial:'53 · קלע',   role:'קלע',                 req:['קלע 5.56'] },
+];
+
+const SOL = (name, certs) => ({ name, certs });
+let ASSIGN = {
+  42: SOL('רועי עמיר',      ['מ"מ']),
+  43: SOL('שהם סנגאונים',   ['לוחם','חבלן']),
+  44: SOL('עדן סולומון',    ['לוחם','טילן']),
+  45: SOL('דניאל אמבר',     ['חובש']),
+  46: SOL('עומר קבלו',      ['מ"כ','חבלן','רחפן אלפא']),
+  47: SOL('אלישי לוי',      ['קלע 5.56','מטול']),
+  48: SOL('אילון פודולסקי', ['טיפ']),
+  50: SOL('רועי סב לזונו',  ['מטול']),
+  51: SOL('עמיחי קליינברג', ['נגב 7.62']),
+  52: SOL('נדב אפללו',      ['טילן']),
+};
+let BANK = [
+  { dept:'havala', name:'יובל רומנו',  role:'מ"כ',  certs:['מ"כ','חבלן'] },
+  { dept:'maflag', name:'איתי שרעבי',  role:'לוחם', certs:['לוחם'] },
+  { dept:'maflag', name:'גיא אברהם',   role:'לוחם', certs:['לוחם','מטול'] },
+  { dept:'esh',    name:'סהר גבאי',    role:'מקלען',certs:['נגב 7.62','רחפן עטלף'] },
+  { dept:'esh',    name:'עומרי יפרח',  role:'לוחם', certs:[] },
+  { dept:'esh',    name:'מור סויסה',   role:'לוחם', certs:['קלע 5.56'] },
+];
+const BANK_FAKE = { maflag:10, hod:0, havala:1, esh:3 };   /* מונים לתצוגה */
+const COMPANY_TOTAL = 99, COMPANY_ASSIGNED = 90, COMPANY_MISSING = 27;
+
+const DRONES = ['רחפן איבו','רחפן אלפא','רחפן בומרנג','רחפן ציין אורין','רחפן פלייכארט',
+                'רחפן עטלף','רחפן אווטה','רחפן חמשוש','רחפן ציד 750'];
+const isDrone = c => DRONES.includes(c) || c === 'רחפן';
+
+let dept = 'havala';
+let editMode = false;
+let picked = null;               /* {from:'role'|'bank', roleId?, bankIdx?} */
+
+/* ---------- §6: פתרון סטטוס איוש ---------- */
+function teamHasDrone(r){
+  return ROLES.filter(x => x.dept === r.dept && x.zone === r.zone && x.team === r.team)
+              .some(x => (ASSIGN[x.id]?.certs || []).some(isDrone));
+}
+function reqMet(req, r){
+  if (req === 'רחפן') return teamHasDrone(r);                       /* כיסוי ברמת החוליה */
+  const held = ASSIGN[r.id]?.certs || [];
+  return req.split('/').map(s => s.trim()).some(alt => held.includes(alt));
+}
+function roleStatus(r){
+  if (!ASSIGN[r.id]) return 'empty';
+  return r.req.every(q => reqMet(q, r)) ? 'ok' : 'red';
+}
+const missingOf = r => r.req.filter(q => !reqMet(q, r));
+
+/* ---------- KPI ---------- */
+function renderKpis(){
+  const ready = Math.round((COMPANY_ASSIGNED - COMPANY_MISSING) / COMPANY_TOTAL * 100);
+  const cards = [
+    { k:'#3d5cc9', l:'מוכנות',        v:ready + '%', d:'מאויש ומוסמך מתוך התקן' },
+    { k:'#12996c', l:'מאויש',         v:`${COMPANY_ASSIGNED}<span style="font-size:.9rem">/${COMPANY_TOTAL}</span>`, d:'תקנים עם חייל משובץ' },
+    { k:'#d1414a', l:'פערי הסמכה',    v:COMPANY_MISSING, d:'מאוישים שחסרה להם הסמכה' },
+    { k:'#c9791c', l:'פער כ"א',       v:COMPANY_TOTAL - COMPANY_ASSIGNED, d:'תקנים ריקים' },
+  ];
+  document.getElementById('fsKpis').innerHTML = cards.map(c =>
+    `<div class="card kpi" style="--k:${c.k}">
+      <div class="lbl">${c.l}</div><div class="val">${c.v}</div><div class="delta">${c.d}</div></div>`).join('');
+  document.getElementById('fsKpiNote').innerHTML =
+    `<b>ארבעת המדדים — נגזרים כולם מ-<code>roles</code> + <code>role_assignments</code> + <code>soldier_certifications</code>:</b><br>
+     • <b>פער כ"א</b> = <code>COUNT(roles) − COUNT(role_assignments)</code> = ${COMPANY_TOTAL} − ${COMPANY_ASSIGNED} = ${COMPANY_TOTAL-COMPANY_ASSIGNED}<br>
+     • <b>פערי הסמכה</b> = תקנים מאוישים שלא כל <code>req</code> שלהם מסופק = ${COMPANY_MISSING}<br>
+     • <b>מוכנות</b> = <code>(מאויש − פערי הסמכה) / סה"כ תקנים</code> = (${COMPANY_ASSIGNED} − ${COMPANY_MISSING}) / ${COMPANY_TOTAL} = <b>${ready}%</b><br>
+     שני הפערים <b>נפרדים ולא נסכמים</b> — תקן ריק ותקן מאויש בלי הסמכה הם שתי בעיות שונות עם שני פתרונות שונים.
+     המדדים ברמת הפלוגה כולה, לא המחלקה המוצגת.`;
+}
+
+/* ---------- בורר מחלקות ---------- */
+function renderPills(){
+  document.getElementById('deptPills').innerHTML = DEPTS.map(d => {
+    const rs = ROLES.filter(r => r.dept === d.id);
+    const empt = rs.filter(r => roleStatus(r) === 'empty').length;
+    return `<button class="fs-pill${d.id===dept?' active':''}" data-dept="${d.id}">${d.name}
+      ${rs.length ? `<span class="pc">${rs.length - empt}/${rs.length}</span>` : ''}</button>`;
+  }).join('');
+}
+
+/* ---------- קנבס התפקידים ---------- */
+function reqChip(q, r){
+  const met = reqMet(q, r);
+  const drone = q === 'רחפן';
+  return `<span class="req ${ASSIGN[r.id] ? (met?'held':'missing') : ''}">${q}${
+    ASSIGN[r.id] ? (met?' ✓':' ✗') : ''}${drone?' ⌁':''}</span>`;
+}
+function roleCard(r){
+  const st = roleStatus(r), a = ASSIGN[r.id];
+  const miss = missingOf(r);
+  const pill = st === 'ok' ? 'מוסמך' : st === 'empty' ? 'תקן ריק' : 'חסר ' + miss.join(', ');
+  const isPicked = picked && picked.from === 'role' && picked.roleId === r.id;
+  return `<div class="rolecard st-${st}${editMode?' editable':''}${isPicked?' picked':''}"
+    data-role="${r.id}">
+    <div class="rtop"><span class="lock" title="דרישות התקן נעולות">🔒</span>
+      <div><div class="rname">${r.role}</div><div class="serial">${r.serial}</div></div></div>
+    <div class="slot${editMode?' grab':''}"${editMode && a ? ` draggable="true" data-drag="role:${r.id}"` : ''}>
+      ${a ? `<div class="who">${a.name}</div>
+             <div class="reqline">${a.certs.length ? a.certs.join(', ') : 'ללא הסמכות'}</div>`
+          : `<div class="who">${editMode ? 'שחרר כאן' : '— תקן ריק —'}</div>`}
+    </div>
+    <div class="reqs">${r.req.map(q => reqChip(q, r)).join('')}</div>
+    <span class="pill">${pill}</span>
+  </div>`;
+}
+function renderCanvas(){
+  const rs = ROLES.filter(r => r.dept === dept);
+  const host = document.getElementById('fsCanvas');
+  if (rs.length === 0){
+    host.innerHTML = `<div class="card pad"><p class="sub">אין תקנים מוגדרים ל${
+      DEPTS.find(d=>d.id===dept).name} בפלוגה זו. יש להריץ את הייבוא מטבלת הייחוס (§10).</p></div>`;
+    return;
+  }
+  const zones = [...new Set(rs.map(r => r.zone))];
+  host.innerHTML = zones.map(z => {
+    const zr = rs.filter(r => r.zone === z);
+    const teams = [...new Set(zr.map(r => r.team))];
+    const empt = zr.filter(r => roleStatus(r) === 'empty').length;
+    const red  = zr.filter(r => roleStatus(r) === 'red').length;
+    const body = teams.map(t => {
+      const tr = zr.filter(r => r.team === t);
+      const cards = `<div class="grid g4">${tr.map(roleCard).join('')}</div>`;
+      if (!t) return cards;
+      const drone = tr.some(x => (ASSIGN[x.id]?.certs || []).some(isDrone));
+      return `<div class="fs-team">
+        <div class="thead">
+          <span class="badge ${drone?'ok':'bad'}" style="font-size:.66rem">
+            ${drone?'רחפן בחוליה ✓':'אין רחפן בחוליה ✗'}</span>
+          <span class="tname">${t}</span>
+        </div>${cards}</div>`;
+    }).join('');
+    return `<div class="fs-zone">
+      <div class="zhead">
+        <div class="row">
+          <span class="sub">${zr.length} תפקידים</span>
+          ${empt?`<span class="badge warn">${empt} ריקים</span>`:''}
+          ${red?`<span class="badge bad">${red} חסרי הסמכה</span>`:''}
+        </div>
+        <h2>${z}</h2>
+      </div>${body}</div>`;
+  }).join('');
+}
+
+/* ---------- בנק 120% ---------- */
+function renderBank(){
+  const cap = Math.round(COMPANY_TOTAL * 1.2);
+  const actual = COMPANY_ASSIGNED + BANK.length + 17;      /* דמו */
+  const pct = Math.round(actual / COMPANY_TOTAL * 100);
+  document.getElementById('bankTotal').textContent = BANK.length + 8;
+  document.getElementById('capFill').style.width = Math.min(actual / cap * 100, 100) + '%';
+  document.getElementById('capFill').style.background = 'linear-gradient(to left,var(--chart-1),var(--chart-4))';
+  document.getElementById('capMark').style.insetInlineStart = (COMPANY_TOTAL / cap * 100) + '%';
+  document.getElementById('capText').innerHTML =
+    `${actual} חיילים בפועל · תקן ${COMPANY_TOTAL} · תקרה ${cap} (120%) · <b>${pct}%</b>`;
+
+  document.getElementById('bankFilters').innerHTML = DEPTS.map(d =>
+    `<label class="bfilter${d.id===dept?' on':''}">
+      <input type="checkbox" ${d.id===dept?'checked':''} data-bf="${d.id}">
+      ${d.name} <b>${BANK_FAKE[d.id]}</b></label>`).join('');
+
+  const list = BANK.filter(b => b.dept === dept);
+  document.getElementById('bankList').innerHTML = list.length ? list.map((b,i) => {
+    const isPicked = picked && picked.from === 'bank' && picked.bankIdx === BANK.indexOf(b);
+    return `<div class="bankcard${editMode?' grab':''}${isPicked?' picked':''}"
+      data-bank="${BANK.indexOf(b)}"${editMode ? ` draggable="true" data-drag="bank:${BANK.indexOf(b)}"` : ''}>
+      <div class="bname">${b.name}</div>
+      <div class="brole">${b.role}</div>
+      <div class="bdept">${DEPTS.find(d=>d.id===b.dept).name}</div>
+      ${b.certs.length?`<div class="reqs">${b.certs.map(c=>`<span class="req held">${c}</span>`).join('')}</div>`:''}
+    </div>`;
+  }).join('') : '<p class="footnote" style="text-align:center;padding:.5rem">אין חיילים בבנק למחלקה זו.</p>';
+}
+
+/* ---------- מצב עריכה ---------- */
+function renderBanner(){
+  document.getElementById('fsEditBanner').innerHTML = editMode ? `
+    <div class="editbar">
+      <div>
+        <b>מצב עריכה פעיל.</b>
+        ${picked
+          ? `נבחר: <b>${picked.from==='role' ? ASSIGN[picked.roleId].name : BANK[picked.bankIdx].name}</b> —
+             לחץ על תקן יעד כדי לשבץ, או על הבנק כדי להוציא מהמצבה.`
+          : '<b>גרור</b> חייל לתקן אחר כדי לשבץ או להחליף, או אל הבנק כדי להוציא מהמצבה. ' +
+            'אפשר גם ללחוץ כדי להרים ואז ללחוץ על היעד.'}
+      </div>
+      <div class="row">
+        ${picked?'<button class="btn xs" id="fsCancel">בטל בחירה</button>':''}
+        <span class="badge" style="background:#fff">🔒 התפקידים קבועים — רק החייל זז</span>
+      </div>
+    </div>
+    <div class="note"><b>מה מצב העריכה מותר לו לעשות, וזה כל מה שהוא מותר לו:</b>
+      להוסיף, למחוק ולהחליף שורות ב-<code>role_assignments</code>, ולהזיז רשומות בין
+      <code>role_assignments</code> ל-<code>bank_soldiers</code>.<br>
+      <b>מה הוא לא מותר לו:</b> לגעת ב-<code>roles</code>. לא ב-<code>req1/req2</code>, לא ב-
+      <code>role_name</code>, לא ב-<code>serial</code>. הכרטיס עצמו — השם, המספר הסידורי, ותגי הדרישות —
+      אינו ניתן לעריכה מכאן, וזה מסומן במנעול 🔒 על כל כרטיס.
+      עריכת תקנים היא נתיב admin/seeding נפרד לגמרי.<br>
+      <b>שיבוץ לתקן שהחייל לא מסופק אליו מותר</b> — הוא פשוט יקבל סטטוס <code>red</code>.
+      אין חסימה, כי לפעמים משבצים אדם ואז שולחים אותו להסמכה. זה בדיוק מה שמזין את לשונית הפערים.<br>
+      החלפה בין שני תקנים מאוישים = swap אטומי אחד, לא שתי פעולות שמשאירות תקן ריק באמצע.</div>` : '';
+}
+function pick(p){ picked = p; renderAll(); }
+function place(roleId){
+  if (!picked) return;
+  const target = ASSIGN[roleId] || null;
+  if (picked.from === 'role'){
+    const src = picked.roleId;
+    if (src === roleId){ picked = null; return renderAll(); }
+    const moving = ASSIGN[src];
+    if (target) ASSIGN[src] = target; else delete ASSIGN[src];   /* swap או פינוי */
+    ASSIGN[roleId] = moving;
+  } else {
+    const s = BANK[picked.bankIdx];
+    if (target) BANK[picked.bankIdx] = { dept:dept, name:target.name, role:'—', certs:target.certs };
+    else BANK.splice(picked.bankIdx, 1);
+    ASSIGN[roleId] = SOL(s.name, s.certs);
+  }
+  picked = null; renderAll();
+}
+function toBank(){
+  if (!picked || picked.from !== 'role') return;
+  const s = ASSIGN[picked.roleId];
+  const r = ROLES.find(x => x.id === picked.roleId);
+  BANK.push({ dept:r.dept, name:s.name, role:r.role, certs:s.certs });
+  delete ASSIGN[picked.roleId];
+  picked = null; renderAll();
+}
+
+function renderAll(){ renderKpis(); renderPills(); renderCanvas(); renderBank(); renderBanner(); }
+
+/* ---------- אירועים ---------- */
+document.getElementById('fsEdit').addEventListener('click', function(){
+  editMode = !editMode; picked = null;
+  this.textContent = editMode ? '✓ סיום עריכה' : '✎ מצב עריכה';
+  this.classList.toggle('primary', editMode);
+  renderAll();
+});
+document.getElementById('deptPills').addEventListener('click', e => {
+  const b = e.target.closest('[data-dept]'); if (!b) return;
+  dept = b.dataset.dept; picked = null; renderAll();
+});
+document.getElementById('fsCanvas').addEventListener('click', e => {
+  if (!editMode) return;
+  const card = e.target.closest('[data-role]'); if (!card) return;
+  const id = Number(card.dataset.role);
+  if (picked) place(id);
+  else if (ASSIGN[id]) pick({ from:'role', roleId:id });
+});
+document.getElementById('bankList').addEventListener('click', e => {
+  if (!editMode) return;
+  const c = e.target.closest('[data-bank]');
+  if (picked && picked.from === 'role'){ toBank(); return; }
+  if (c) pick({ from:'bank', bankIdx:Number(c.dataset.bank) });
+});
+document.getElementById('fsEditBanner').addEventListener('click', e => {
+  if (e.target.closest('#fsCancel')) pick(null);
+});
+
+/* ---------- גרירה ושחרור ---------- */
+function applyDrop(payload, targetKind, targetId){
+  if (!payload) return;
+  const [kind, idx] = payload.split(':');
+  if (targetKind === 'role'){
+    picked = kind === 'role' ? { from:'role', roleId:+idx } : { from:'bank', bankIdx:+idx };
+    place(+targetId);
+  } else if (targetKind === 'bank' && kind === 'role'){
+    picked = { from:'role', roleId:+idx };
+    toBank();
+  } else {
+    picked = null; renderAll();
+  }
+}
+function clearDrop(){
+  document.querySelectorAll('.dropok').forEach(x => {
+    x.classList.remove('dropok'); x.removeAttribute('data-droplabel');
+  });
+}
+document.addEventListener('dragstart', e => {
+  const src = e.target.closest('[data-drag]');
+  if (!editMode || !src){ e.preventDefault?.(); return; }
+  e.dataTransfer.setData('text/plain', src.dataset.drag);
+  e.dataTransfer.effectAllowed = 'move';
+  src.classList.add('dragging');
+  document.body.classList.add('dnd');
+});
+document.addEventListener('dragend', () => {
+  document.body.classList.remove('dnd');
+  document.querySelectorAll('.dragging').forEach(x => x.classList.remove('dragging'));
+  clearDrop();
+});
+document.addEventListener('dragover', e => {
+  if (!editMode) return;
+  const card = e.target.closest('.rolecard.editable');
+  const bank = e.target.closest('#bankPanel');
+  if (!card && !bank) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (card && !card.classList.contains('dropok')){
+    clearDrop();
+    card.classList.add('dropok');
+    card.setAttribute('data-droplabel',
+      card.querySelector('.slot .who') && !card.classList.contains('st-empty') ? 'החלפה' : 'שבץ כאן');
+  } else if (bank && !card && !bank.classList.contains('dropok')){
+    clearDrop(); bank.classList.add('dropok');
+  }
+});
+document.addEventListener('dragleave', e => {
+  const card = e.target.closest('.rolecard.editable, #bankPanel');
+  if (card && !card.contains(e.relatedTarget)){
+    card.classList.remove('dropok'); card.removeAttribute('data-droplabel');
+  }
+});
+document.addEventListener('drop', e => {
+  if (!editMode) return;
+  const card = e.target.closest('.rolecard.editable');
+  const bank = e.target.closest('#bankPanel');
+  if (!card && !bank) return;
+  e.preventDefault();
+  const payload = e.dataTransfer.getData('text/plain');
+  document.body.classList.remove('dnd'); clearDrop();
+  if (card) applyDrop(payload, 'role', card.dataset.role);
+  else applyDrop(payload, 'bank');
+});
+document.querySelectorAll('.sidehead').forEach(b => {
+  b.addEventListener('click', () => {
+    const body = b.parentElement.querySelector('.sidebody');
+    body.classList.toggle('collapsed');
+    b.querySelector('.chev').textContent = body.classList.contains('collapsed') ? '▸' : '▾';
+  });
+});
+renderAll();
+</script>
+</body>
+</html>
