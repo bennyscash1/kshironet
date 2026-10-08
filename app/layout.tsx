@@ -10,7 +10,7 @@ import { RoleProvider } from "@/lib/auth/role-context";
 import { getCurrentRole } from "@/lib/auth/current-role";
 import { getCurrentUser } from "@/lib/auth/user";
 import { getActiveBrigade } from "@/lib/auth/active-brigade";
-import { canSwitchActiveBrigade, canSwitchBattalionView } from "@/lib/auth/permissions";
+import { canSwitchActiveBrigade, canSwitchBattalionView, canView } from "@/lib/auth/permissions";
 import { listBrigades } from "@/lib/db/repositories/brigades";
 import { isBrigade } from "@/lib/auth/permissions";
 import { navLinksForView } from "@/lib/auth/nav";
@@ -107,8 +107,11 @@ export default async function RootLayout({
               canSwitchBattalionView={canSwitchBattalionView(me)}
             />
             {/* The open-tasks bar is a brigade-wide worklist across every battalion, so a
-                battalion-scoped user never gets it. */}
-            {isBrigade(role) && scopedBattalionId === null && (
+                battalion-scoped user never gets it. It is also gated on an approved user
+                HERE, on the server: ChromeGate only hides it client-side, so without this
+                its queries would run — and their results reach the RSC payload — for
+                anonymous visitors on /login and /signup. */}
+            {canView(me) && isBrigade(role) && scopedBattalionId === null && (
               <ChromeGate>
                 <OpenTasksBar />
               </ChromeGate>

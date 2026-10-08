@@ -51,10 +51,17 @@ export function SignupForm() {
     setSubmitting(false);
 
     if (error) {
-      const message = /already registered|already exists/i.test(error.message)
-        ? "כתובת האימייל כבר רשומה במערכת"
-        : "ההרשמה נכשלה, נסו שוב";
-      toast.error(message);
+      // Supabase's own text is kept as the description: a generic "failed" alone hid
+      // every real cause (unauthorized SMTP recipient, rate limit, unreachable project).
+      if (/already registered|already exists/i.test(error.message)) {
+        toast.error("כתובת האימייל כבר רשומה במערכת");
+      } else if (error.code === "over_email_send_rate_limit" || error.status === 429) {
+        toast.error("נשלחו יותר מדי בקשות הרשמה, נסו שוב מאוחר יותר", {
+          description: error.message,
+        });
+      } else {
+        toast.error("ההרשמה נכשלה, נסו שוב", { description: error.message });
+      }
       return;
     }
 
