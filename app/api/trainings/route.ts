@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { unscopedBlockFailure } from "@/lib/brigades/unscoped-guard";
 import { createTraining, listTrainings } from "@/lib/db/repositories/trainings";
 import { trainingSchema } from "@/lib/validation/training";
 import { getCurrentRole } from "@/lib/auth/current-role";
@@ -25,6 +26,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
   const { sessions, ...trainingInput } = parsed.data;
-  const id = await createTraining(trainingInput, sessions);
-  return NextResponse.json({ id }, { status: 201 });
+  try {
+    const id = await createTraining(trainingInput, sessions);
+    return NextResponse.json({ id }, { status: 201 });
+  } catch (err) {
+    // trainings has no brigade_id yet — see migration 027.
+    const blocked = unscopedBlockFailure(err);
+    if (blocked) {
+      return NextResponse.json({ error: blocked.message }, { status: blocked.status });
+    }
+    throw err;
+  }
 }

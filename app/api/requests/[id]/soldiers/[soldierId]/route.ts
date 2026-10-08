@@ -5,6 +5,7 @@ import { requireEditor } from "@/lib/auth/user";
 import { getCurrentRole } from "@/lib/auth/current-role";
 import { battalionCodeOf, isBrigade } from "@/lib/auth/permissions";
 import { getBattalionByCode } from "@/lib/db/repositories/battalions";
+import { activeBrigadeId } from "@/lib/auth/active-brigade";
 
 export async function DELETE(
   _request: Request,
@@ -20,7 +21,12 @@ export async function DELETE(
   // Org-scope: only the owning battalion (or brigade) may remove a soldier.
   const role = await getCurrentRole();
   if (!isBrigade(role)) {
-    const battalion = await getBattalionByCode(battalionCodeOf(role) ?? "");
+    // Resolved within the active brigade; a null brigade falls into the existing 403.
+    const brigadeId = await activeBrigadeId();
+    const battalion =
+      brigadeId === null
+        ? undefined
+        : await getBattalionByCode(battalionCodeOf(role) ?? "", brigadeId);
     if (!battalion || battalion.id !== req.battalion_id) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }

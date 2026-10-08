@@ -1,8 +1,18 @@
 import Link from "next/link";
+import type { Battalion } from "@/lib/types";
 import { redirect } from "next/navigation";
-import { listBattalions, getBattalionById } from "@/lib/db/repositories/battalions";
+import {
+  listBattalions,
+  listActiveBattalionsForBrigade,
+  getBattalionById,
+} from "@/lib/db/repositories/battalions";
 import { getCurrentUser } from "@/lib/auth/user";
-import { getScopedBattalionId, isBattalionScoped } from "@/lib/auth/permissions";
+import {
+  canSwitchActiveBrigade,
+  getScopedBattalionId,
+  isBattalionScoped,
+} from "@/lib/auth/permissions";
+import { getActiveBrigade } from "@/lib/auth/active-brigade";
 
 export const dynamic = "force-dynamic";
 
@@ -50,28 +60,82 @@ export default async function BattalionsPage() {
   }
 
   // Brigade roles only from here down — every scoped user returned or was redirected
-  // above, so the list needs no further filtering.
+  // above.
+  //
+  // A super admin sees the ACTIVE brigade's battalions, filtered in SQL. With no brigade
+  // selected they get an explicit empty state rather than every brigade's battalions
+  // merged into one grid — that merge is the exact confusion the brigade selector exists
+  // to remove, and it would look like data rather than like a missing selection.
+  //
+  // This filter is application-level and is NOT a security boundary. It is correct for a
+  // super admin because a super admin is authorised across every brigade; it must not be
+  // relied on for any other role before row level security lands.
+  if (canSwitchActiveBrigade(me)) {
+    const active = await getActiveBrigade();
+    if (!active) {
+      return (
+        <div className="space-y-4">
+          <h1 className="text-2xl font-bold">גדודים</h1>
+          <div className="rounded-lg border bg-card p-6 text-center space-y-1">
+            <p className="font-bold">לא נבחרה חטיבה</p>
+            <p className="text-sm text-muted-foreground">
+              במערכת קיימת יותר מחטיבה אחת. יש לבחור חטיבה בבורר החטיבות שבראש העמוד כדי
+              לראות את הגדודים שלה.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    const scopedBattalions = await listActiveBattalionsForBrigade(active.brigade.id);
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-baseline gap-2">
+          <h1 className="text-2xl font-bold">גדודים</h1>
+          <span className="text-sm text-muted-foreground">{active.brigade.name}</span>
+        </div>
+        {scopedBattalions.length === 0 ? (
+          <div className="rounded-lg border bg-card p-6 text-center space-y-1">
+            <p className="font-bold">טרם הוגדרו גדודים בחטיבה זו</p>
+            <p className="text-sm text-muted-foreground">
+              ניתן להוסיף גדודים במסך ניהול הגדודים.
+            </p>
+          </div>
+        ) : (
+          <BattalionGrid battalions={scopedBattalions} />
+        )}
+      </div>
+    );
+  }
+
   const battalions = await listBattalions();
 
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">גדודים</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {battalions.map((b) => (
-          <Link
-            key={b.id}
-            href={`/battalions/${b.code}`}
-            className="rounded-lg border-e-4 bg-card shadow-sm p-4 hover:shadow-md transition-shadow flex items-center gap-3"
-            style={{ borderInlineEndColor: b.color_hex }}
-          >
-            <span
-              className="size-8 rounded-full shrink-0 shadow-sm"
-              style={{ backgroundColor: b.color_hex }}
-            />
-            <span className="font-bold text-lg">{b.name}</span>
-          </Link>
-        ))}
-      </div>
+      <BattalionGrid battalions={battalions} />
+    </div>
+  );
+}
+
+/** One grid, so the scoped and unscoped branches cannot drift apart visually. */
+function BattalionGrid({ battalions }: { battalions: Battalion[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      {battalions.map((b) => (
+        <Link
+          key={b.id}
+          href={`/battalions/${b.code}`}
+          className="rounded-lg border-e-4 bg-card shadow-sm p-4 hover:shadow-md transition-shadow flex items-center gap-3"
+          style={{ borderInlineEndColor: b.color_hex }}
+        >
+          <span
+            className="size-8 rounded-full shrink-0 shadow-sm"
+            style={{ backgroundColor: b.color_hex }}
+          />
+          <span className="font-bold text-lg">{b.name}</span>
+        </Link>
+      ))}
     </div>
   );
 }

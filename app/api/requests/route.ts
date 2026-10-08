@@ -6,6 +6,7 @@ import { requireApprovedUser } from "@/lib/auth/user";
 import { getBattalionScope } from "@/lib/auth/scope";
 import { battalionCodeOf, canEditBattalion, isBrigade } from "@/lib/auth/permissions";
 import { getBattalionByCode } from "@/lib/db/repositories/battalions";
+import { activeBrigadeId } from "@/lib/auth/active-brigade";
 import type { RequestStatus } from "@/lib/types";
 
 export async function GET(request: Request) {
@@ -57,7 +58,10 @@ export async function POST(request: Request) {
 
   if (!scope && !isBrigade(role)) {
     const code = battalionCodeOf(role);
-    const battalion = await getBattalionByCode(code ?? "");
+    // Resolved within the active brigade; a null brigade falls into the existing 403.
+    const brigadeId = await activeBrigadeId();
+    const battalion =
+      brigadeId === null ? undefined : await getBattalionByCode(code ?? "", brigadeId);
     if (!battalion || battalion.id !== parsed.data.battalion_id) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { UNLIMITED_SEATS } from "@/lib/battalions/action-band";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { getBattalionByCode } from "@/lib/db/repositories/battalions";
+import { activeBrigadeId } from "@/lib/auth/active-brigade";
 import { getCertificationById, listPrerequisites } from "@/lib/db/repositories/certifications";
 import {
   getBattalionQuotaUsage,
@@ -31,7 +32,11 @@ export default async function BattalionCertificationPage({
   params: Promise<{ code: string; certId: string }>;
 }) {
   const { code, certId } = await params;
-  const battalion = await getBattalionByCode(code);
+  // Same rule as the battalion page: no brigade selected goes to the index; a code in
+  // another brigade is indistinguishable from a code that does not exist.
+  const brigadeId = await activeBrigadeId();
+  if (brigadeId === null) redirect("/battalions");
+  const battalion = await getBattalionByCode(code, brigadeId);
   if (!battalion) notFound();
 
   // The code in the URL is user-supplied: a scoped user may only ever open their own

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { unscopedBlockFailure } from "@/lib/brigades/unscoped-guard";
 import {
   createInfluencingFactor,
   listInfluencingFactors,
@@ -31,6 +32,15 @@ export async function POST(request: Request) {
   if (bad.length) {
     return NextResponse.json({ error: "יחידות לא תקינות" }, { status: 400 });
   }
-  const id = await createInfluencingFactor(input, battalion_ids);
-  return NextResponse.json({ id }, { status: 201 });
+  try {
+    const id = await createInfluencingFactor(input, battalion_ids);
+    return NextResponse.json({ id }, { status: 201 });
+  } catch (err) {
+    // influencing_factors has no brigade_id yet — see migration 027.
+    const blocked = unscopedBlockFailure(err);
+    if (blocked) {
+      return NextResponse.json({ error: blocked.message }, { status: blocked.status });
+    }
+    throw err;
+  }
 }

@@ -7,6 +7,7 @@ import { getCurrentRole } from "@/lib/auth/current-role";
 import { battalionCodeOf, isBrigade } from "@/lib/auth/permissions";
 import { denyOutOfScope } from "@/lib/auth/scope";
 import { getBattalionByCode } from "@/lib/db/repositories/battalions";
+import { activeBrigadeId } from "@/lib/auth/active-brigade";
 
 export async function GET(
   _request: Request,
@@ -46,7 +47,12 @@ export async function POST(
   // may act on any. (Same cookie-based scoping the rest of the app uses.)
   const role = await getCurrentRole();
   if (!isBrigade(role)) {
-    const battalion = await getBattalionByCode(battalionCodeOf(role) ?? "");
+    // Resolved within the active brigade; a null brigade falls into the existing 403.
+    const brigadeId = await activeBrigadeId();
+    const battalion =
+      brigadeId === null
+        ? undefined
+        : await getBattalionByCode(battalionCodeOf(role) ?? "", brigadeId);
     if (!battalion || battalion.id !== parsed.data.battalion_id || battalion.id !== req.battalion_id) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }

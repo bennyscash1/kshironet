@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { listBattalions, getBattalionByCode } from "@/lib/db/repositories/battalions";
+import { activeBrigadeId } from "@/lib/auth/active-brigade";
 import { getCurrentRole } from "@/lib/auth/current-role";
 import { getCurrentUser } from "@/lib/auth/user";
 import { battalionCodeOf, canEdit, canEditBattalion, isBrigade } from "@/lib/auth/permissions";
@@ -25,11 +26,14 @@ export default async function NewRequestPage() {
     : isBrigade(role)
     ? allBattalions
     : allBattalions.filter((b) => b.code === battalionCodeOf(role));
+  // Which battalion the form defaults to. Resolved within the active brigade; with no
+  // brigade there is simply no default, never another brigade's battalion.
+  const defaultBrigadeId = await activeBrigadeId();
   const defaultBattalion = scope
     ? scope.battalionId
-    : isBrigade(role)
+    : isBrigade(role) || defaultBrigadeId === null
     ? undefined
-    : (await getBattalionByCode(battalionCodeOf(role) ?? ""))?.id;
+    : (await getBattalionByCode(battalionCodeOf(role) ?? "", defaultBrigadeId))?.id;
 
   return (
     <div className="space-y-4">

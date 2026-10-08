@@ -16,7 +16,8 @@
     "import:force-structure": "tsx scripts/import-force-structure.ts",
     "seed:6228-gaps": "tsx scripts/seed-6228-gap-keys.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:db:setup": "tsx scripts/setup-test-db.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

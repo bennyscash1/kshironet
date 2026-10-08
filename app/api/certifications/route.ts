@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { unscopedBlockFailure } from "@/lib/brigades/unscoped-guard";
 import {
   createCertification,
   listCertifications,
@@ -35,13 +36,23 @@ export async function POST(request: Request) {
   }
   // is_unlimited is UI-only: unlimited is persisted as total_slots = null.
   const { prerequisites, quotas, taxes, is_unlimited, ...certInput } = parsed.data;
-  const id = await createCertification({
-    ...certInput,
-    total_slots: is_unlimited ? null : certInput.total_slots ?? null,
-    created_by_role: role,
-  });
-  if (prerequisites.length) await replacePrerequisites(id, prerequisites);
-  if (quotas.length) await replaceQuotas(id, quotas);
-  if (taxes.length) await replaceTaxes(id, taxes);
-  return NextResponse.json({ id }, { status: 201 });
+  try {
+    const id = await createCertification({
+      ...certInput,
+      total_slots: is_unlimited ? null : certInput.total_slots ?? null,
+      created_by_role: role,
+    });
+    if (prerequisites.length) await replacePrerequisites(id, prerequisites);
+    if (quotas.length) await replaceQuotas(id, quotas);
+    if (taxes.length) await replaceTaxes(id, taxes);
+    return NextResponse.json({ id }, { status: 201 });
+  } catch (err) {
+    // `certifications` has no brigade_id yet, so creating one is refused by the database
+    // while more than one active brigade exists. See migration 027.
+    const blocked = unscopedBlockFailure(err);
+    if (blocked) {
+      return NextResponse.json({ error: blocked.message }, { status: blocked.status });
+    }
+    throw err;
+  }
 }

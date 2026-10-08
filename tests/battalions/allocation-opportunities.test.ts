@@ -1,4 +1,6 @@
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
+import { lockDatabaseForTest } from "../helpers/db-lock";
+import { testClientConfig, testDatabaseUrl } from "../helpers/test-db";
 import { config } from "dotenv";
 
 config({ path: ".env.local" });
@@ -22,7 +24,9 @@ import {
  * them depends on the day the suite happens to run.
  */
 
-const hasDatabase = Boolean(process.env.DATABASE_URL || process.env.DIRECT_URL);
+// LOCAL test database only — see tests/helpers/test-db.ts.
+const CONNECTION = testDatabaseUrl();
+const hasDatabase = Boolean(CONNECTION);
 
 /** Fixtures are prefixed so anything left behind by a crashed run is identifiable. */
 const TAG = "__test_alloc__";
@@ -51,14 +55,38 @@ describe.skipIf(!hasDatabase)("allocation opportunities", () => {
       "@/lib/db/repositories/battalion-dashboard"
     ));
     client = new Client({
-      connectionString: process.env.DIRECT_URL || process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
+      ...testClientConfig(CONNECTION!),
     });
     await client.connect();
     await client.query("BEGIN");
+    // Queue behind any other database-backed suite — see tests/helpers/db-lock.ts
+    await lockDatabaseForTest(client);
+
+    // This suite used to borrow two battalions that happened to already exist, which made
+    // it depend on `npm run seed` having been run at some point — it crashed on a database
+    // with no battalions. It now provisions its own, inside the same rolled-back
+    // transaction as the rest of the fixtures.
+    //
+    // Deliberately reuses the EXISTING brigade rather than creating one: since migration
+    // 027, a second active brigade blocks INSERT into `certifications`, which this suite
+    // creates. Adding a brigade here would make the suite block itself.
+    const brigade = await client.query<{ id: number }>(
+      `SELECT id FROM brigades WHERE is_active = 1 ORDER BY id LIMIT 1`
+    );
+    const brigadeId =
+      brigade.rows[0]?.id ??
+      (
+        await client.query<{ id: number }>(
+          `INSERT INTO brigades (name) VALUES ($1) RETURNING id`,
+          [`${TAG} brigade`]
+        )
+      ).rows[0].id;
 
     const bns = await client.query<{ id: number }>(
-      `SELECT id FROM battalions WHERE is_active = 1 ORDER BY code LIMIT 2`
+      `INSERT INTO battalions (brigade_id, code, name, color_hex, is_active)
+       VALUES ($1, $2, $2, '#64748B', 1), ($1, $3, $3, '#64748B', 1)
+       RETURNING id`,
+      [brigadeId, `${TAG}-a`, `${TAG}-b`]
     );
     bnA = bns.rows[0].id;
     bnB = bns.rows[1].id;

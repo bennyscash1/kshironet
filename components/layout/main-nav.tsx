@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { RoleSwitcher } from "@/components/layout/role-switcher";
+import { BrigadeSwitcher, type BrigadeOption } from "@/components/layout/brigade-switcher";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { isAuthRoute } from "@/lib/auth/routes";
 import type { NavLink } from "@/lib/auth/nav";
@@ -20,13 +21,28 @@ import { APP_LOGO, APP_NAME_WITH_BRIGADE, APP_SLOGAN } from "@/lib/config/app";
  *
  * `scopedBattalionName` is set only for the battalion-scoped roles; it pins the view
  * selector to their own battalion instead of offering the whole brigade.
+ *
+ * `brigades` is EMPTY for anyone who may not switch brigade — absent from the payload
+ * rather than hidden with CSS, so a non-super-admin's HTML never contains the other
+ * brigades' names. It is also empty when only one brigade exists: there is nothing to
+ * switch between, and a selector with a single option is noise.
+ *
+ * `canSwitchBattalionView` gates the battalion selector separately, because the two are
+ * different capabilities — a brigade commander will switch battalions within their own
+ * brigade without being able to change brigade.
  */
 export function MainNav({
   links,
   scopedBattalionName,
+  brigades,
+  activeBrigade,
+  canSwitchBattalionView,
 }: {
   links: NavLink[];
   scopedBattalionName?: string | null;
+  brigades: BrigadeOption[];
+  activeBrigade: BrigadeOption | null;
+  canSwitchBattalionView: boolean;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -79,7 +95,12 @@ export function MainNav({
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
-          <RoleSwitcher scopedBattalionName={scopedBattalionName} />
+          {brigades.length > 0 && (
+            <BrigadeSwitcher brigades={brigades} activeBrigade={activeBrigade} />
+          )}
+          {(canSwitchBattalionView || scopedBattalionName) && (
+            <RoleSwitcher scopedBattalionName={scopedBattalionName} />
+          )}
           <NotificationBell />
         </div>
 
@@ -107,8 +128,13 @@ export function MainNav({
               {link.label}
             </Link>
           ))}
-          <div className="flex items-center gap-2 pt-2 border-t mt-1">
-            <RoleSwitcher scopedBattalionName={scopedBattalionName} />
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t mt-1">
+            {brigades.length > 0 && (
+              <BrigadeSwitcher brigades={brigades} activeBrigade={activeBrigade} />
+            )}
+            {(canSwitchBattalionView || scopedBattalionName) && (
+              <RoleSwitcher scopedBattalionName={scopedBattalionName} />
+            )}
             <NotificationBell />
           </div>
         </div>

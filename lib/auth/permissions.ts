@@ -28,6 +28,67 @@ export function isSuperAdmin(user: AppUser | null): boolean {
   return canManageUsers(user);
 }
 
+/**
+ * Only super-admins may create, rename or deactivate a brigade.
+ *
+ * Takes the authenticated `AppUser`, never a `Role` — a brigade is the tenant boundary
+ * itself, so the decision must come from the user's database row and can never come from
+ * the `active_role` cookie, which is a view selector any client can set.
+ *
+ * Kept separate from `canManageUsers` rather than aliased to it: the two answer different
+ * questions and will diverge when the brigade-level administrator role lands (a
+ * brigade_admin manages users inside its own brigade but must never create a brigade — a
+ * tenant may not create tenants).
+ */
+export function canManageBrigades(user: AppUser | null): boolean {
+  return !!user && user.status === "approved" && user.role === "super_admin";
+}
+
+/**
+ * Who may create, rename or deactivate a battalion.
+ *
+ * Battalions had no UI at all before this — they existed only through scripts/seed.ts — so
+ * this predicate grants a capability nobody had rather than widening an existing one.
+ *
+ * super_admin only for now. When the brigade-level administrator role lands it gains this
+ * capability for its own brigade, which is why this is a separate predicate rather than an
+ * alias of `canManageBrigades`: a brigade_admin will manage battalions but must never
+ * create a brigade.
+ */
+export function canManageBattalions(user: AppUser | null): boolean {
+  return !!user && user.status === "approved" && user.role === "super_admin";
+}
+
+/**
+ * Who may change which brigade they are acting in.
+ *
+ * super_admin only, and this is a deliberate ceiling rather than a starting point. For a
+ * super admin, brigade selection is NOT a security boundary — they are authorised across
+ * every brigade by definition, so filtering their view by the selected brigade is a
+ * convenience, and the application-level filtering behind it is sufficient.
+ *
+ * For every other role brigade scoping IS a security boundary and must wait for row level
+ * security (migrations 033-035). Do not extend this predicate to another role before then:
+ * application-level filtering would be the only thing separating two tenants, and one
+ * missed query would leak.
+ */
+export function canSwitchActiveBrigade(user: AppUser | null): boolean {
+  return !!user && user.status === "approved" && user.role === "super_admin";
+}
+
+/**
+ * Who may switch the battalion VIEW (the existing `active_role` cookie selector).
+ *
+ * A display selector, not an authorization gate — the cookie behind it is never read for
+ * an authorization decision. Kept as its own predicate because the brigade-level
+ * administrator role will have it without having `canSwitchActiveBrigade`: a brigade
+ * commander switches between their own brigade's battalions but may not change brigade.
+ * Today that role does not exist, so this resolves to super_admin alone.
+ */
+export function canSwitchBattalionView(user: AppUser | null): boolean {
+  return !!user && user.status === "approved" && user.role === "super_admin";
+}
+
 // --- Battalion-scoped roles (additive; the functions above are untouched) ----------
 // viewer_battalion / editor_battalion are limited to their own `battalion_id`.
 //

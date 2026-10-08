@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { unscopedBlockFailure } from "@/lib/brigades/unscoped-guard";
 import { addGapRow, listGapRows } from "@/lib/db/repositories/certification-gaps";
 import { getCurrentRole } from "@/lib/auth/current-role";
 import { canManageCertifications } from "@/lib/auth/permissions";
@@ -23,6 +24,16 @@ export async function POST(request: Request) {
   if (!certification_name || typeof certification_name !== "string") {
     return NextResponse.json({ error: "certification_name required" }, { status: 400 });
   }
-  const id = await addGapRow(certification_name);
-  return NextResponse.json({ id });
+  try {
+    const id = await addGapRow(certification_name);
+    return NextResponse.json({ id });
+  } catch (err) {
+    // certification_gap_rows has no brigade_id yet, and ONE unscoped row is enough to
+    // make v_certification_gaps span two brigades — see migration 027.
+    const blocked = unscopedBlockFailure(err);
+    if (blocked) {
+      return NextResponse.json({ error: blocked.message }, { status: blocked.status });
+    }
+    throw err;
+  }
 }

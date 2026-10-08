@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { unscopedBlockFailure } from "@/lib/brigades/unscoped-guard";
 import { openCertificationFromRequest } from "@/lib/db/repositories/requests";
 import { certificationSchema } from "@/lib/validation/certification";
 import { getCurrentRole } from "@/lib/auth/current-role";
@@ -31,6 +32,17 @@ export async function POST(
     }
     return NextResponse.json({ certificationId: certId }, { status: 201 });
   } catch (err) {
+    // The second creation path for `certifications` — openCertificationFromRequest calls
+    // createCertification, so the same trigger refuses it. Checked BEFORE the fallback
+    // below, which would otherwise put the trigger's raw text (naming the table and the
+    // function) straight into the response.
+    const blocked = unscopedBlockFailure(err);
+    if (blocked) {
+      return NextResponse.json({ error: blocked.message }, { status: blocked.status });
+    }
+    // Pre-existing behaviour, left as-is: this route surfaces repository error messages
+    // directly. Out of scope for this slice, but it is why the check above must come
+    // first rather than being appended after it.
     return NextResponse.json({ error: (err as Error).message }, { status: 400 });
   }
 }

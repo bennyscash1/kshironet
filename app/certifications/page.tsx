@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { isUnscopedEntityBlockActive } from "@/lib/db/repositories/system-settings";
+import { UnscopedEntityNotice } from "@/components/brigades/unscoped-entity-notice";
 import { listCertifications } from "@/lib/db/repositories/certifications";
 import { getCurrentUser } from "@/lib/auth/user";
 import { canEdit } from "@/lib/auth/permissions";
@@ -9,8 +11,15 @@ import { Plus } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export default async function CertificationsPage() {
-  const [certifications, me] = await Promise.all([listCertifications(), getCurrentUser()]);
-  const canEditData = canEdit(me);
+  const [certifications, me, createBlocked] = await Promise.all([
+    listCertifications(),
+    getCurrentUser(),
+    isUnscopedEntityBlockActive(),
+  ]);
+  // `certifications` has no brigade_id yet, so creating one is refused by the database
+  // while more than one active brigade exists. A disabled affordance with a stated
+  // reason beats a form that submits into a 409.
+  const canEditData = canEdit(me) && !createBlocked;
 
   // A certification is "past" once its date (end date, or start date if none) has passed.
   const today = new Date().toISOString().slice(0, 10);
@@ -30,6 +39,8 @@ export default async function CertificationsPage() {
           </Button>
         )}
       </div>
+
+      {createBlocked && canEdit(me) && <UnscopedEntityNotice entity="certifications" />}
 
       <CertificationsListTabs upcoming={upcoming} past={past} />
     </div>

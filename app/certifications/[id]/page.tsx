@@ -10,6 +10,7 @@ import { listReserveForCertification, listRosterForCertification } from "@/lib/d
 import { listByCertification as listCertificationFiles } from "@/lib/db/repositories/certification-files";
 import { withSignedUrls } from "@/lib/storage/certification-files";
 import { getBattalionByCode, listBattalions } from "@/lib/db/repositories/battalions";
+import { activeBrigadeId } from "@/lib/auth/active-brigade";
 import { getCurrentRole } from "@/lib/auth/current-role";
 import { getCurrentUser } from "@/lib/auth/user";
 import {
@@ -89,7 +90,13 @@ export default async function CertificationDetailPage({
 
   // The caller's own battalion (from the view-scope cookie), used to show that
   // battalion its trainee-approval action. null for brigade or non-editors.
-  const myBattalion = !isBrigade(role) ? await getBattalionByCode(battalionCodeOf(role) ?? "") : null;
+  // Display only — which battalion the viewer has selected. Resolved within the active
+  // brigade; no brigade means no selection to show, never another brigade's battalion.
+  const myBattalionBrigadeId = await activeBrigadeId();
+  const myBattalion =
+    !isBrigade(role) && myBattalionBrigadeId !== null
+      ? await getBattalionByCode(battalionCodeOf(role) ?? "", myBattalionBrigadeId)
+      : null;
   const myBattalionId = canEditData && myBattalion ? myBattalion.id : null;
 
   const today = new Date().toISOString().slice(0, 10);

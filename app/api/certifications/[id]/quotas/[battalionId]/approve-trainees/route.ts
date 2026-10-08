@@ -6,6 +6,7 @@ import { requireEditor } from "@/lib/auth/user";
 import { getCurrentRole } from "@/lib/auth/current-role";
 import { battalionCodeOf, isBrigade } from "@/lib/auth/permissions";
 import { getBattalionByCode } from "@/lib/db/repositories/battalions";
+import { activeBrigadeId } from "@/lib/auth/active-brigade";
 import { REGISTRATION_LOCKED_MESSAGE, isRegistrationLocked } from "@/lib/utils/registration-lock";
 
 /** Battalion approves (submits) its trainee list for an allocation. Rejected
@@ -33,7 +34,14 @@ export async function POST(
   // Org-scope: a battalion may approve only its own allocation; brigade may act on any.
   const role = await getCurrentRole();
   if (!isBrigade(role)) {
-    const battalion = await getBattalionByCode(battalionCodeOf(role) ?? "");
+    // Resolved within the active brigade. A null brigade (none selected, or a role
+    // with no brigade until migration 032) leaves `battalion` undefined and falls into
+    // the existing 403 below — the fail-closed direction.
+    const brigadeId = await activeBrigadeId();
+    const battalion =
+      brigadeId === null
+        ? undefined
+        : await getBattalionByCode(battalionCodeOf(role) ?? "", brigadeId);
     if (!battalion || battalion.id !== battId) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }

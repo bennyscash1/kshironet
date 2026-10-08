@@ -26,6 +26,7 @@ function user(role: UserRole, battalion_id: number | null, status: UserStatus = 
   return {
     id: "u1", email: "u@example.com", full_name: null, role, status, battalion_id,
     requested_role_text: null, requested_battalion_text: null,
+    active_brigade_id: null,
     approved_by: null, approved_at: null, created_at: "",
   };
 }

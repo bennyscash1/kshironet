@@ -155,6 +155,9 @@ export interface AppUser {
    * consulted for authorization. */
   requested_role_text: string | null;
   requested_battalion_text: string | null;
+  /** Which brigade a super_admin is currently acting in. NULL for everyone else, and
+   * ignored for every other role — see lib/auth/active-brigade.ts, the only reader. */
+  active_brigade_id: number | null;
   approved_by: string | null;
   approved_at: string | null;
   created_at: string;
@@ -166,6 +169,23 @@ export interface Battalion {
   name: string;
   color_hex: string;
   is_active: number;
+  /** The brigade this battalion belongs to. NOT NULL since migration 026; `code` is
+   * unique within a brigade, not globally. */
+  brigade_id: number;
+}
+
+/** A brigade — the tenant root. `is_active` is 0/1 like Battalion, not a boolean:
+ * the column is SMALLINT, matching the convention battalions established. */
+export interface Brigade {
+  id: number;
+  name: string;
+  is_active: number;
+  created_at: string;
+  created_by: string | null;
+  /** Opaque id used in URLs (/admin/brigades/<public_id>). The serial `id` stays the key
+   * every foreign key references; this exists so URLs are neither enumerable nor carrying
+   * sequence noise. */
+  public_id: string;
 }
 
 export interface CertificationTemplate {

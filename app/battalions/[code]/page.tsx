@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getBattalionByCode } from "@/lib/db/repositories/battalions";
+import { activeBrigadeId } from "@/lib/auth/active-brigade";
 import { listRequests } from "@/lib/db/repositories/requests";
 import { getBattalionSummary } from "@/lib/db/repositories/battalion-summary";
 import {
@@ -29,7 +30,15 @@ export default async function BattalionDetailPage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  const battalion = await getBattalionByCode(code);
+  // No brigade selected (or a role with no brigade until 032) goes to the battalion
+  // index, which carries the Hebrew "no brigade selected" state and the selector.
+  const brigadeId = await activeBrigadeId();
+  if (brigadeId === null) redirect("/battalions");
+
+  // A code belonging to ANOTHER brigade and a code that does not exist are the same
+  // outcome — notFound() in both cases. Nothing here reveals that the battalion exists
+  // elsewhere, which is what stops the URL being used to enumerate other brigades.
+  const battalion = await getBattalionByCode(code, brigadeId);
   if (!battalion) notFound();
 
   const scope = await getBattalionScope();

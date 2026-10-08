@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { config } from "dotenv";
-
-config({ path: ".env.local" });
+import { testDatabaseUrl } from "../helpers/test-db";
 
 import {
   computeRoleStatus,
@@ -19,12 +17,21 @@ import {
  * own summary cards start contradicting each other — which is exactly the class of bug
  * that erodes trust in a readiness figure.
  *
- * This suite reads only. It is READ-ONLY against whatever database DATABASE_URL points at
- * and issues no INSERT, UPDATE or DELETE, so it is safe to run against real data — but it
- * needs data to be meaningful, so it skips itself when there is none.
+ * This suite reads only — no INSERT, UPDATE or DELETE — but it runs against the LOCAL test
+ * database like every other database-backed suite, because a read-only suite pointed at a
+ * live database is still one edit away from not being read-only.
+ *
+ * IT IS THE ONLY SUITE THAT READS AMBIENT DATA rather than creating its own fixtures, which
+ * makes it the only one that can degrade silently: against an empty database every
+ * comparison below has nothing to compare, and it used to report four PASSING tests. A
+ * suite that turns from real-green to empty-green is worse than a missing one, because the
+ * run still says 28 files passed.
+ *
+ * So emptiness is now reported as SKIPPED with a stated reason, never as passed. Populate
+ * it with `npm run import:force-structure` against the test database to get real coverage.
  */
 
-const hasDatabase = Boolean(process.env.DATABASE_URL);
+const hasDatabase = Boolean(testDatabaseUrl());
 
 interface RoleRow extends Record<string, unknown> {
   role_id: number;
@@ -44,6 +51,9 @@ describe.skipIf(!hasDatabase)("§2.3 — the SQL view and the TypeScript agree",
   let roles: RoleRow[] = [];
   let droneModels = new Set<string>();
   let db: typeof import("@/lib/db/client");
+  /** False when there is no force structure to compare. Every test below skips on it
+   * rather than returning early, so the run reports SKIPPED instead of PASSED. */
+  let hasFixture = false;
 
   beforeAll(async () => {
     db = await import("@/lib/db/client");
@@ -68,19 +78,24 @@ describe.skipIf(!hasDatabase)("§2.3 — the SQL view and the TypeScript agree",
         JOIN v_role_status vs ON vs.role_id = r.id
         LEFT JOIN role_assignments ra ON ra.role_id = r.id
     `);
+
+    hasFixture = roles.length > 0;
+    if (!hasFixture) {
+      console.warn(
+        "[status-parity] SKIPPED: `roles` is empty, so there is no force structure to " +
+          "compare v_role_status against computeRoleStatus. This suite proves nothing " +
+          "on an empty database. Run `npm run import:force-structure` against the test " +
+          "database to make it meaningful."
+      );
+    }
   });
 
   afterAll(async () => {
     await db?.pool.end();
   });
 
-  it("agrees on every post in the database", () => {
-    if (roles.length === 0) {
-      // No force structure imported: nothing to compare, and asserting on an empty set
-      // would be a green test that checks nothing.
-      expect(roles.length).toBe(0);
-      return;
-    }
+  it("agrees on every post in the database", (ctx) => {
+    if (!hasFixture) return ctx.skip();
 
     // Only manned posts contribute squad coverage, matching the view's squad_drone CTE.
     const covered = squadsWithDrone(
@@ -118,14 +133,14 @@ describe.skipIf(!hasDatabase)("§2.3 — the SQL view and the TypeScript agree",
     expect(mismatches.length).toBe(0);
   });
 
-  it("classifies every post as exactly one of the four states", () => {
-    if (roles.length === 0) return;
+  it("classifies every post as exactly one of the four states", (ctx) => {
+    if (!hasFixture) return ctx.skip();
     const states = new Set(roles.map((r) => r.sql_status));
     for (const state of states) expect(["empty", "pending", "ok", "red"]).toContain(state);
   });
 
-  it("never counts a pending-identity post as a certification gap", () => {
-    if (roles.length === 0) return;
+  it("never counts a pending-identity post as a certification gap", (ctx) => {
+    if (!hasFixture) return ctx.skip();
     for (const r of roles) {
       if (r.pending_identity && r.is_manned) {
         expect(r.sql_status, `role ${r.role_id}`).toBe("pending");
@@ -133,8 +148,8 @@ describe.skipIf(!hasDatabase)("§2.3 — the SQL view and the TypeScript agree",
     }
   });
 
-  it("never reports a manned post as empty, or an unmanned post as ok/red", () => {
-    if (roles.length === 0) return;
+  it("never reports a manned post as empty, or an unmanned post as ok/red", (ctx) => {
+    if (!hasFixture) return ctx.skip();
     for (const r of roles) {
       if (r.is_manned) expect(r.sql_status, `role ${r.role_id}`).not.toBe("empty");
       else expect(r.sql_status, `role ${r.role_id}`).toBe("empty");

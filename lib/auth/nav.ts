@@ -1,4 +1,10 @@
-import { isBattalionScoped, isBrigade, isSuperAdmin } from "@/lib/auth/permissions";
+import {
+  canManageBattalions,
+  canManageBrigades,
+  canManageUsers,
+  isBattalionScoped,
+  isBrigade,
+} from "@/lib/auth/permissions";
 import { BATTALION_SCOPED_SECTIONS } from "@/lib/auth/battalion-scope";
 import type { AppUser, Role } from "@/lib/types";
 
@@ -21,6 +27,28 @@ export const NAV_LINKS: NavLink[] = [
 ];
 
 export const ADMIN_LINK: NavLink = { href: "/admin/permissions", label: "ניהול הרשאות" };
+
+export const ADMIN_BRIGADES_LINK: NavLink = { href: "/admin/brigades", label: "ניהול חטיבות" };
+
+export const ADMIN_BATTALIONS_LINK: NavLink = {
+  href: "/admin/battalions",
+  label: "ניהול גדודים",
+};
+
+/**
+ * The admin tabs a user may see, each gated on its own predicate.
+ *
+ * One list per capability rather than a single "is admin" branch, so that when the
+ * brigade-level administrator role lands it can receive some of these links and not
+ * others without this function being restructured.
+ */
+function adminLinksFor(user: AppUser | null): NavLink[] {
+  const links: NavLink[] = [];
+  if (canManageUsers(user)) links.push(ADMIN_LINK);
+  if (canManageBrigades(user)) links.push(ADMIN_BRIGADES_LINK);
+  if (canManageBattalions(user)) links.push(ADMIN_BATTALIONS_LINK);
+  return links;
+}
 
 /** The index href, so the nav and the per-battalion rewrite below cannot drift apart. */
 const BATTALIONS_LINK_HREF = "/battalions";
@@ -50,7 +78,8 @@ export function navLinksFor(user: AppUser | null): NavLink[] {
   if (isBattalionScoped(user)) {
     return NAV_LINKS.filter((link) => BATTALION_SCOPED_SECTIONS.includes(link.href));
   }
-  if (isSuperAdmin(user)) return [...NAV_LINKS, ADMIN_LINK];
+  const admin = adminLinksFor(user);
+  if (admin.length > 0) return [...NAV_LINKS, ...admin];
   return NAV_LINKS;
 }
 

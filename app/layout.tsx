@@ -9,6 +9,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { RoleProvider } from "@/lib/auth/role-context";
 import { getCurrentRole } from "@/lib/auth/current-role";
 import { getCurrentUser } from "@/lib/auth/user";
+import { getActiveBrigade } from "@/lib/auth/active-brigade";
+import { canSwitchActiveBrigade, canSwitchBattalionView } from "@/lib/auth/permissions";
+import { listBrigades } from "@/lib/db/repositories/brigades";
 import { isBrigade } from "@/lib/auth/permissions";
 import { navLinksForView } from "@/lib/auth/nav";
 import { scopedBattalionIdOf } from "@/lib/auth/battalion-scope";
@@ -49,6 +52,25 @@ export default async function RootLayout({
 }>) {
   const [role, me] = await Promise.all([getCurrentRole(), getCurrentUser()]);
 
+  /**
+   * The two header selectors, both resolved on the SERVER and passed down as props —
+   * never fetched from the client, for the reason recorded in main-nav.tsx.
+   *
+   * `brigades` is left EMPTY unless the user may actually switch, so a non-super-admin's
+   * payload never contains the other brigades' names. It is also empty with a single
+   * brigade: nothing to switch between.
+   */
+  const active = canSwitchActiveBrigade(me) ? await getActiveBrigade() : null;
+  const allBrigades = canSwitchActiveBrigade(me) ? await listBrigades() : [];
+  const activeBrigades = allBrigades.filter((b) => b.is_active === 1);
+  const brigadeOptions =
+    activeBrigades.length > 1
+      ? activeBrigades.map((b) => ({ public_id: b.public_id, name: b.name }))
+      : [];
+  const activeBrigadeOption = active
+    ? { public_id: active.brigade.public_id, name: active.brigade.name }
+    : null;
+
   // The visible tabs come from the authenticated user's real row, resolved here on the
   // server — never from the `active_role` cookie and never from a client fetch, which
   // would paint the full tab list first and only then hide the forbidden ones.
@@ -77,7 +99,13 @@ export default async function RootLayout({
             column order inside <Tabs>. */}
         <Direction.DirectionProvider dir="rtl">
           <RoleProvider>
-            <MainNav links={navLinks} scopedBattalionName={scopedBattalion?.name ?? null} />
+            <MainNav
+              links={navLinks}
+              scopedBattalionName={scopedBattalion?.name ?? null}
+              brigades={brigadeOptions}
+              activeBrigade={activeBrigadeOption}
+              canSwitchBattalionView={canSwitchBattalionView(me)}
+            />
             {/* The open-tasks bar is a brigade-wide worklist across every battalion, so a
                 battalion-scoped user never gets it. */}
             {isBrigade(role) && scopedBattalionId === null && (

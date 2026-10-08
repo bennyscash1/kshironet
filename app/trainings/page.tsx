@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { isUnscopedEntityBlockActive } from "@/lib/db/repositories/system-settings";
+import { UnscopedEntityNotice } from "@/components/brigades/unscoped-entity-notice";
 import { listTrainings } from "@/lib/db/repositories/trainings";
 import { getCurrentRole } from "@/lib/auth/current-role";
 import { getCurrentUser } from "@/lib/auth/user";
@@ -10,12 +12,14 @@ import { Plus } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export default async function TrainingsPage() {
-  const [trainings, role, me] = await Promise.all([
+  const [trainings, role, me, createBlocked] = await Promise.all([
     listTrainings(),
     getCurrentRole(),
     getCurrentUser(),
+    isUnscopedEntityBlockActive(),
   ]);
-  const canManage = canManageTrainings(role) && canEdit(me);
+  // See app/certifications/page.tsx: `trainings` has no brigade_id yet.
+  const canManage = canManageTrainings(role) && canEdit(me) && !createBlocked;
 
   const today = new Date().toISOString().slice(0, 10);
   const upcoming = trainings.filter((t) => (t.end_date || t.start_date) >= today);
@@ -34,6 +38,10 @@ export default async function TrainingsPage() {
           </Button>
         )}
       </div>
+
+      {createBlocked && canManageTrainings(role) && canEdit(me) && (
+        <UnscopedEntityNotice entity="trainings" />
+      )}
 
       <TrainingsListTabs upcoming={upcoming} past={past} />
     </div>

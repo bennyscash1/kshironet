@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { isUnscopedEntityBlockActive } from "@/lib/db/repositories/system-settings";
+import { UnscopedEntityNotice } from "@/components/brigades/unscoped-entity-notice";
 import { listTemplates } from "@/lib/db/repositories/templates";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -6,7 +8,10 @@ import { Plus } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export default async function TemplatesPage() {
-  const templates = await listTemplates();
+  const [templates, createBlocked] = await Promise.all([
+    listTemplates(),
+    isUnscopedEntityBlockActive(),
+  ]);
 
   const groups = new Map<string, typeof templates>();
   for (const t of templates) {
@@ -19,13 +24,17 @@ export default async function TemplatesPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">בנק הסמכות (תבניות)</h1>
-        <Button asChild>
-          <Link href="/templates/new">
-            <Plus className="size-4" />
-            תבנית חדשה
-          </Link>
-        </Button>
+        {!createBlocked && (
+          <Button asChild>
+            <Link href="/templates/new">
+              <Plus className="size-4" />
+              תבנית חדשה
+            </Link>
+          </Button>
+        )}
       </div>
+      {createBlocked && <UnscopedEntityNotice entity="certification_templates" />}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {courses.map(([name, variants]) => (
           <Link

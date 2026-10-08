@@ -113,3 +113,16 @@ export async function updateUserRole(
 export async function rejectUser(id: string): Promise<void> {
   await execute("UPDATE users SET status = 'rejected' WHERE id = $1", [id]);
 }
+
+/**
+ * Sets which brigade a super admin is acting in. `null` clears the selection.
+ *
+ * Takes the user id explicitly and is only ever called with the CALLER'S OWN id — the
+ * route enforces that. There is deliberately no "set it for someone else" variant.
+ */
+export async function setActiveBrigade(
+  userId: string,
+  brigadeId: number | null
+): Promise<void> {
+  await execute("UPDATE users SET active_brigade_id = $2 WHERE id = $1", [userId, brigadeId]);
+}
